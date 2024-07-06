@@ -14,9 +14,11 @@ import { sendMail, site_mail_data } from "@helpers/mail";
 import mail from "@config/mail";
 
 import paypal from "@paypal/checkout-server-sdk"
+const c_id = "AT_5r1CUj-A5aDvr-MjLuZNTfIdxJYdCuQlpF8GVq9HRvL-IjEjQMAm1ITlFZjdhBKOXt8eDdo2zTitG"
+const c_sec = "EDpe6zEf4tl7NYza6B8HuwB6cwRmUglcXxiHK8uFA1Y7QeeoAZRE0YRY_5vMlzy_0ppxinAVxbQGZC87"
 
-const clientId = "AT_5r1CUj-A5aDvr-MjLuZNTfIdxJYdCuQlpF8GVq9HRvL-IjEjQMAm1ITlFZjdhBKOXt8eDdo2zTitG";
-const clientSecret = "EDpe6zEf4tl7NYza6B8HuwB6cwRmUglcXxiHK8uFA1Y7QeeoAZRE0YRY_5vMlzy_0ppxinAVxbQGZC87";
+const clientId = c_id;
+const clientSecret = c_sec;
 const environment = new paypal.core.SandboxEnvironment(clientId, clientSecret);
 const client = new paypal.core.PayPalHttpClient(environment);
 
