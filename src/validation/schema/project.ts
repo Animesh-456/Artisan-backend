@@ -6,7 +6,8 @@ export default {
 		description: Joi.string().required(),
 		visibility: Joi.string().required(),
 		post_for: Joi.number().required(),
-		category: Joi.string().required()
+		category: Joi.string().required(),
+		sub_category:Joi.string().required()
 	},
 	question: {
 		project_id: Joi.string().required(),

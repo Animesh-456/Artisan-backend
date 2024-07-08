@@ -877,7 +877,7 @@ export default {
 		console.log("add hitting....")
 		let data = await Validate(
 			res,
-			["project_name", "description", "visibility", "post_for", "category"],
+			["project_name", "description", "visibility", "post_for", "category", "sub_category"],
 			schema.project.addProject,
 			req.body,
 			{},
