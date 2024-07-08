@@ -6,6 +6,7 @@ export default {
 		description: Joi.string().required(),
 		visibility: Joi.string().required(),
 		post_for: Joi.number().required(),
+		category: Joi.string().required()
 	},
 	question: {
 		project_id: Joi.string().required(),
@@ -68,7 +69,7 @@ export default {
 		project_id: Joi.string().required(),
 		amount: Joi.number().required(),
 	},
-    	update_balance: {
+	update_balance: {
 		project_id: Joi.string().required(),
 		amount: Joi.number().required(),
 	},
