@@ -3966,7 +3966,7 @@ export default {
 					{
 						model: models.users,
 						as: "creator",
-						attributes: ["email", "user_name"],
+						attributes: ["email", "user_name", "logo"],
 						required: false,
 					},
 					{
@@ -4191,7 +4191,7 @@ export default {
 					where: {
 						id: { [Op.col]: "provider_id" },
 					},
-					attributes: ["user_name", "name", "surname"],
+					attributes: ["user_name", "name", "surname", "logo"],
 					required: false,
 				},
 				{
@@ -4209,7 +4209,7 @@ export default {
 					where: {
 						id: { [Op.col]: "buyer_id" },
 					},
-					attributes: ["user_name", "name", "surname"],
+					attributes: ["user_name", "name", "surname", "logo"],
 					required: false,
 				},
 
