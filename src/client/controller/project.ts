@@ -46,12 +46,12 @@ export default {
 
 
 
-
-
 		const opt = {
 			page: parseInt(req.query.page?.toString() || "0"),
 			limit: parseInt(req.query.limit?.toString() || "10"),
 			user_id: req.query.user_id?.toString() || null,
+			category: req.query.category?.toString() || "",
+			searchQuery: req.query.searchQuery?.toString() || "",
 		};
 
 		let userQuery = opt.user_id
@@ -60,13 +60,30 @@ export default {
 			}
 			: {};
 
+
+		let whereClause: any = {
+			...userQuery,
+			country_code: 2
+		};
+
+		// Conditionally add category to the where clause if it's not an empty string
+		if (opt.category && opt.category !== '') {
+			whereClause.category = opt.category;
+		}
+
+		// Conditionally add searchQuery to the where clause if it's not an empty string
+		if (opt.searchQuery && opt.searchQuery !== '') {
+			whereClause.project_name = {
+				[Op.like]: `%${opt.searchQuery}%`
+			};
+		}
+
+
+
 		console.log("going for plist")
 
 		const projects = await models.projects.findAndCountAll({
-			where: {
-				...userQuery,
-				country_code: 2
-			},
+			where: whereClause,
 			include: [
 
 				{
