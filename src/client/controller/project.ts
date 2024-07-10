@@ -1229,7 +1229,7 @@ export default {
 		// validation
 		let data = await Validate(
 			res,
-			["project_name", "description", "visibility", "post_for"],
+			["project_name", "description", "visibility", "post_for", "category", "sub_category"],
 			schema.project.addProject,
 			req.body,
 			{},
@@ -1297,6 +1297,12 @@ export default {
 		} else {
 			data["images"] = files;
 		}
+
+		// data["category"] = project.category;
+		// data["sub_category"] = project.sub_category;
+
+		console.log("category before add", data["category"])
+		console.log("sub-category before add", data["sub_category"])
 
 		project = await models.projects_temp.create(data);
 
