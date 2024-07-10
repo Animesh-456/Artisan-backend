@@ -1298,11 +1298,7 @@ export default {
 			data["images"] = files;
 		}
 
-		// data["category"] = project.category;
-		// data["sub_category"] = project.sub_category;
-
-		console.log("category before add", data["category"])
-		console.log("sub-category before add", data["sub_category"])
+		
 
 		project = await models.projects_temp.create(data);
 
