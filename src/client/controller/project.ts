@@ -37,10 +37,7 @@ export default {
 		//pagination options
 
 
-		const serverTime = moment().format('YYYY-MM-DD HH:mm:ss');
-		console.log("server time---->", serverTime);
-
-		console.log("The date fro test is-----", new Date().toLocaleString());
+		console.log("req.query.category?.toString()", req.query.category?.toString())
 
 
 
@@ -113,6 +110,8 @@ export default {
 				"is_private",
 				"creator_id",
 				"attachment_name",
+				"category",
+				"sub_category",
 				[
 					db.sequelize.literal(
 						`(SELECT COUNT(*) FROM bids WHERE project_id = projects.id)`,
