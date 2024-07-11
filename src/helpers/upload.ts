@@ -277,6 +277,7 @@ export const uploadsendmsgFile = async (req: UserAuthRequest, res: Response) => 
 						filename.substring(0, 3) +
 						Date.now() +
 						req.user?.id +
+						index+
 						extensionName;
 				} else {
 					filename =
