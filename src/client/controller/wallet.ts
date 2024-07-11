@@ -226,7 +226,7 @@ export default {
 
 
 
-		
+
 
 
 
@@ -331,7 +331,7 @@ export default {
 		}
 
 		machinist_wallet.increment({
-			amount: (bid.bid_amount_gbp) * (100 - 14.9) / 100,
+			amount: (bid.bid_amount_gbp) * (100 - 15) / 100,
 			amount_gbp: bid.bid_amount,
 		});
 		var today = new Date();
@@ -352,7 +352,7 @@ export default {
 				
 				Machining-4u has taken a small commission fee as a requirement for being used as a third party service.
 				
-				The amount you've had added to your account is £${bid.bid_amount} (£(${bid.bid_amount_gbp}*(100-14.9)/100) minus the Machining-4u commission).
+				The amount you've had added to your account is £${bid.bid_amount} (£(${bid.bid_amount_gbp}*(100-15)/100) minus the Machining-4u commission).
 				
 				To access your account on Machining-4u, click here .
 				
@@ -398,7 +398,7 @@ export default {
 			inv_no: new Date().getFullYear() + transaction_details.id.toString(),
 			project_id: project.id,
 			transaction_id: transaction_details.id,
-			commission_rate: 14.90,
+			commission_rate: 15,
 			pdf_link: "",
 			created_date: Date.now()
 		}
@@ -423,7 +423,7 @@ export default {
 			"!username": machinist?.user_name,
 			"!bid_amount": transaction_details.amount_gbp,
 			"!withdraw_url": `${mail.mailbaseurl}account/withdraw`,
-			"!amount": ((transaction_details.amount_gbp) * (100 - 14.9) / 100),
+			"!amount": ((transaction_details.amount_gbp) * (100 - 15) / 100),
 		}
 
 		const mailData = await models.email_templates.findOne({

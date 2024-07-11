@@ -1298,7 +1298,7 @@ export default {
 			data["images"] = files;
 		}
 
-		
+
 
 		project = await models.projects_temp.create(data);
 
@@ -1996,7 +1996,7 @@ export default {
 				"!supplier_username": supplier?.user_name,
 				"!bid_amount": transaction_details.amount_gbp,
 				"!shipping_date": project.bids[0].bid_days,
-				"!amount": (transaction_details.amount_gbp) * (100 - 14.9) / 100,
+				"!amount": (transaction_details.amount_gbp) * (100 - 15) / 100,
 				"!project_url": `${mail.mailbaseurl}project/${project.project_name}/${project.id}`
 
 			}
