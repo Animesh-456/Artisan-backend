@@ -1344,15 +1344,15 @@ export default {
 
 		//console.log("bid details-->", data);
 		//let euro: any= await models.euro_to_gbp.findOne();
-		let euro: any = await db.sequelize.query('SELECT rate_ratio FROM euro_to_gbp LIMIT 1');
+		// let euro: any = await db.sequelize.query('SELECT rate_ratio FROM euro_to_gbp LIMIT 1');
 		// let res
 		// let bid_amt = res[0][0]
-		console.log("euro--", euro);
+		// console.log("euro--", euro);
 
 		//data["amount_gbp"] = euro?.rate_ratio;
-		data["bid_amount"] = euro[0][0].rate_ratio * data.bid_amount_gbp;
+		data["bid_amount"] = data.bid_amount_gbp;
 		if (data.bid_amount == '') {
-			data.bid_amount = euro[0][0].rate_ratio * data.bid_amount_gbp;
+			data.bid_amount = data.bid_amount_gbp;
 			//data.bid_amount = 0;
 		}
 
@@ -1560,11 +1560,11 @@ export default {
 		if (!bid) {
 			return R(res, false, "No Bid Found");
 		}
-		let euro: any = await db.sequelize.query('SELECT rate_ratio FROM euro_to_gbp LIMIT 1');
-		console.log("euro--", euro);
+		// let euro: any = await db.sequelize.query('SELECT rate_ratio FROM euro_to_gbp LIMIT 1');
+		// console.log("euro--", euro);
 
 		//data["amount_gbp"] = euro?.rate_ratio;
-		data["bid_amount"] = euro[0][0].rate_ratio * data.bid_amount_gbp;
+		data["bid_amount"] = data.bid_amount_gbp;
 
 		if (data?.bid_amount == 0) {
 			data["no_offer"] = 2
@@ -1951,7 +1951,7 @@ export default {
 			var today = new Date();
 
 			let transaction_details = await models.transactions.create({
-				amount: (bid?.bid_amount_gbp) / 0.79,
+				amount: (bid?.bid_amount_gbp),
 				amount_gbp: bid.bid_amount || 0,
 
 				type: "Escrow Transfer",
@@ -2281,7 +2281,7 @@ export default {
 			var today = new Date();
 
 			let transaction_details = await models.transactions.create({
-				amount: (bid?.bid_amount_gbp) / 0.79,
+				amount: (bid?.bid_amount_gbp),
 				amount_gbp: bid.bid_amount || 0,
 
 				type: "Escrow Transfer",
@@ -2326,7 +2326,7 @@ export default {
 				"!supplier_username": supplier?.user_name,
 				"!bid_amount": transaction_details.amount_gbp,
 				"!shipping_date": project.bids[0].bid_days,
-				"!amount": (transaction_details.amount_gbp) * (100 - 14.9) / 100,
+				"!amount": (transaction_details.amount_gbp) * (100 - 15) / 100,
 				"!project_url": `${mail.mailbaseurl}project/${project.project_name}/${project.id}`
 
 			}

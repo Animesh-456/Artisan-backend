@@ -332,7 +332,7 @@ export default {
 
 		machinist_wallet.increment({
 			amount: (bid.bid_amount_gbp) * (100 - 15) / 100,
-			amount_gbp: bid.bid_amount,
+			amount_gbp: (bid.bid_amount_gbp) * (100 - 15) / 100,
 		});
 		var today = new Date();
 
