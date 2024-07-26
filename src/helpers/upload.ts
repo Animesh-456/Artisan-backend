@@ -314,7 +314,7 @@ export const uploadProtpic = async (req: UserAuthRequest, res: Response) => {
 			return R(res, false, "No file uploaded!");
 		}
 
-		const file = req?.files?.file2;
+		const file = req?.files?.file;
 		const data: any = [];
 
 		const move = (image: any, i: any) => {
@@ -347,7 +347,7 @@ export const uploadProtpic = async (req: UserAuthRequest, res: Response) => {
 
 				file.mv(`${publicPath}${filename}`);
 			} catch (e) {
-				return R(res, false, "Machined parts image1 File upload failed");
+				return R(res, false, "File upload failed");
 			}
 
 			data.push(filename);

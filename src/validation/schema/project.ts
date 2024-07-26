@@ -9,6 +9,11 @@ export default {
 		category: Joi.string().required(),
 		sub_category:Joi.string().required()
 	},
+	add_art : {
+		title: Joi.string().required(),
+		description: Joi.string().required(),
+		category: Joi.string().required(),
+	},
 	question: {
 		project_id: Joi.string().required(),
 		message: Joi.string().required(),

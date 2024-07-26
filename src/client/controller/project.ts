@@ -3,7 +3,7 @@ import { asyncWrapper, R } from "@helpers/response-helpers";
 import { UserAuthRequest, UserAuthBufferRequest } from "@middleware/auth";
 import models from "@model/index";
 import db from "@db/mysql";
-import { uploadFile, uploadMachiningFile, uploadOneFile, shippingmachiningfile, uploadsendmsgFile, uploadInvoice, uploadadditionalFile, deleteadditionalFile, deleteprofilepic, deleteportfoliopic, uploadbidfile } from "@helpers/upload";
+import { uploadFile, uploadMachiningFile, uploadOneFile, shippingmachiningfile, uploadsendmsgFile, uploadInvoice, uploadadditionalFile, deleteadditionalFile, uploadProtpic, deleteprofilepic, deleteportfoliopic, uploadbidfile } from "@helpers/upload";
 import { Pick, Validate } from "validation/utils";
 import schema from "validation/schema";
 import moment from "moment";
@@ -5760,6 +5760,60 @@ export default {
 
 
 
+
+	add_art_work: asyncWrapper(async (req: UserAuthRequest, res: Response) => {
+
+		let data = await Validate(
+			res,
+			["title", "description", "category"],
+			schema.project.add_art,
+			req.body,
+			{},
+		);
+
+		const body = data;
+		const user_id = req.query.user_id
+
+		console.log("body is", body);
+		console.log("params (user ID) is", user_id);
+		console.log("files are", req?.files?.file);
+
+		// if (!Array.isArray(body?.formData) || !user_id) {
+		// 	return R(res, false, "Invalid request data", {});
+		// }
+
+		try {
+
+
+			if (req.files?.file) {
+				var file = await uploadProtpic(req, res)
+				var concatenatedData = file.join(',');
+			}
+
+			let portfolio_data: any = {
+				user_id: user_id,
+				title: body?.title,
+				main_img: file[0],
+				description: body?.description,
+				categories: body?.category,
+				attachment1: concatenatedData || null,
+				attachment2: "",
+				attachment3: "",
+				attachment4: "",
+				attachment5: "",
+			}
+
+
+			await models.portfolio.create(portfolio_data);
+
+			return R(res, true, "Art work added!", portfolio_data);
+		} catch (error) {
+			console.error(error);
+			return R(res, false, "Error adding art work!", error);
+		}
+
+
+	}),
 
 
 };
