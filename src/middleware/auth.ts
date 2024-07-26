@@ -38,10 +38,11 @@ const ignorePaths = [
 	"/user/project/offer-reviews-feedback",
 	"/user/project/project_finalise_image",
 	"/user/project/get-additional-comment",
-	"/user/project/page-details",	
+	"/user/project/page-details",
 	"/user/project/project-detail-seo",
 	"/user/project/public-profile-finalised-image",
 	"/user/project/deposit-fund",
+	"/user/project/get-art",
 	// "/user/project/add-art-work",
 	// "/user/webhook/deposit-fund",
 ];
@@ -146,7 +147,7 @@ export default async function verifyUser(
 		if (user?.id) {
 			try {
 				req.user = user;
-			} catch (e) {}
+			} catch (e) { }
 		}
 	}
 

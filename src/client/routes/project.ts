@@ -137,5 +137,6 @@ router.post("/delete-portfolio-picture", cn.delete_portfolio_picture);
 router.get("/project-detail-seo", cn.project_detail_seo);
 router.get("/public-profile-finalised-image", cn.public_profile_finalised_image);
 router.post("/add-art-work", cn.add_art_work);
+router.get("/get-art", cn.get_art);
 
 export default router;

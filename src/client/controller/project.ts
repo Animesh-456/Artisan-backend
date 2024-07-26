@@ -5815,5 +5815,18 @@ export default {
 
 	}),
 
+	get_art: asyncWrapper(async (req: UserAuthRequest, res: Response) => {
+		const userId = req.query.id;
+		console.log("get art userId---", userId)
+		const art = await models.portfolio.findAll({
+			where: {
+				user_id: userId?.toString()
+			}
+		})
+		console.log("get art response---", art)
+
+		return R(res, true, "get art", art);
+	}),
+
 
 };
