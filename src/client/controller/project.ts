@@ -5144,7 +5144,8 @@ export default {
 					{
 						programmer_id: user?.toString()
 					}
-				]
+				],
+				country_code: 2,
 			},
 
 			include: [
@@ -5154,7 +5155,7 @@ export default {
 					where: {
 						id: { [Op.col]: "programmer_id" },
 					},
-					attributes: ["user_name"],
+					attributes: ["user_name", "logo"],
 					required: false,
 				},
 
@@ -5165,7 +5166,7 @@ export default {
 					where: {
 						id: { [Op.col]: "creator_id" },
 					},
-					attributes: ["user_name", "id"],
+					attributes: ["user_name", "id", "logo"],
 					required: false,
 				},
 
@@ -5178,7 +5179,7 @@ export default {
 						project_id: { [Op.col]: "projects.id" },
 					},
 					attributes: ["rating", "comments", "review_post_date", "provider_rate1", "provider_rate2", "provider_rate3", "provider_rate4"],
-					required: false,
+					required: true,
 
 				},
 			],
@@ -5211,6 +5212,8 @@ export default {
 				]
 			},
 		})
+
+		
 
 		const totaljobs = total.count
 
