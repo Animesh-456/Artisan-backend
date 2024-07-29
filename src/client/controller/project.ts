@@ -35,13 +35,7 @@ export default {
 
 	list: asyncWrapper(async (req: UserAuthRequest, res: Response) => {
 		//pagination options
-
-
 		console.log("req.query.category?.toString()", req.query.category?.toString())
-
-
-
-
 
 		const opt = {
 			page: parseInt(req.query.page?.toString() || "0"),
@@ -2154,13 +2148,6 @@ export default {
 	}),
 
 
-
-
-
-
-
-
-
 	after_cashfree: asyncWrapper(async (req: any, res: Response) => {
 
 		console.log("req.body is", req.body)
@@ -2482,26 +2469,6 @@ export default {
 
 
 	}),
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 	invoice_machinist: asyncWrapper(async (req: UserAuthRequest, res: Response) => {
@@ -5106,11 +5073,6 @@ export default {
 	}),
 
 
-
-
-
-
-
 	public_me: asyncWrapper(async (req: UserAuthRequest, res: Response) => {
 
 		// const w = req.query
@@ -5313,12 +5275,6 @@ export default {
 
 
 	}),
-
-
-
-
-
-
 
 
 	offer_reviews_feedback: asyncWrapper(async (req: UserAuthRequest, res: Response) => {
@@ -5554,11 +5510,6 @@ export default {
 	}),
 
 
-
-
-
-
-
 	delete_additional_file: asyncWrapper(async (req: UserAuthRequest, res: Response) => {
 
 
@@ -5598,9 +5549,6 @@ export default {
 		return R(res, true, "File has been deleted", files);
 
 	}),
-
-
-
 
 
 
@@ -5760,8 +5708,6 @@ export default {
 
 		return R(res, true, "finalised image all list", arr);
 	}),
-
-
 
 
 	add_art_work: asyncWrapper(async (req: UserAuthRequest, res: Response) => {
