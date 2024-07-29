@@ -135,6 +135,7 @@ router.post("/delete-profile-picture", cn.delete_profile_picture);
 
 router.post("/delete-portfolio-picture", cn.delete_portfolio_picture);
 router.post("/delete-art-image", cn.delete_art_image);
+router.post("/edit-art-portfolio", cn.edit_art_portfolio);
 router.get("/project-detail-seo", cn.project_detail_seo);
 router.get("/public-profile-finalised-image", cn.public_profile_finalised_image);
 router.post("/add-art-work", cn.add_art_work);

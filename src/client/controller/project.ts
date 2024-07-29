@@ -5809,7 +5809,67 @@ export default {
 			console.error("Error deleting art item---", error);
 			return R(res, false, "Error deleting art", error);
 		}
-	})
+	}),
+
+
+	edit_art_portfolio: asyncWrapper(async (req: UserAuthRequest, res: Response) => {
+
+		let data = await Validate(
+			res,
+			["title", "description", "category"],
+			schema.project.add_art,
+			req.body,
+			{},
+		);
+
+		const body = data;
+		const id = req.query.id
+
+		try {
+
+
+			const user_portfolio = await models.portfolio.findOne({
+				where: {
+					id: id?.toString()
+				}
+			})
+
+
+			if (!user_portfolio) {
+				return R(res, false, "No portfolio found");
+			}
+
+
+			if (req.files?.file) {
+				var file = await uploadProtpic(req, res)
+				var concatenatedData = file.join(',');
+			}
+
+
+			const edit: any = {
+				title: body?.title,
+				main_img: file[0] || null,
+				description: body?.description,
+				categories: body?.category,
+				attachment1: concatenatedData || null,
+				attachment2: "",
+				attachment3: "",
+				attachment4: "",
+				attachment5: "",
+			}
+
+
+			await user_portfolio?.update(edit);
+
+			return R(res, true, "Art work added!", user_portfolio);
+		} catch (error) {
+			return R(res, false, "Error editing art work!", error);
+		}
+
+
+
+
+	}),
 
 
 };
