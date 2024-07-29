@@ -5213,7 +5213,7 @@ export default {
 			},
 		})
 
-		
+
 
 		const totaljobs = total.count
 
@@ -5830,6 +5830,40 @@ export default {
 
 		return R(res, true, "get art", art);
 	}),
+
+
+	delete_art_image: asyncWrapper(async (req: UserAuthRequest, res: Response) => {
+
+		// const mainImg = req.body.main_img; // Get the main_img from the request body
+		const UserId = req.body.id; // Get the main_img from the request body
+
+		if (!UserId) {
+			return R(res, false, "main_img is required", null);
+		}
+
+		try {
+			// Find the portfolio item by main_img
+			const art = await models.portfolio.findOne({
+				where: {
+					id: UserId
+				}
+			});
+
+			if (!art) {
+				return R(res, false, "Art not found", null);
+			}
+
+			// Delete the found portfolio item
+			await art.destroy();
+
+			console.log("Deleted art item with main_img---", UserId);
+
+			return R(res, true, "Art deleted successfully", null);
+		} catch (error) {
+			console.error("Error deleting art item---", error);
+			return R(res, false, "Error deleting art", error);
+		}
+	})
 
 
 };
