@@ -5835,17 +5835,17 @@ export default {
 	delete_art_image: asyncWrapper(async (req: UserAuthRequest, res: Response) => {
 
 		// const mainImg = req.body.main_img; // Get the main_img from the request body
-		const UserId = req.body.id; // Get the main_img from the request body
-
-		if (!UserId) {
-			return R(res, false, "main_img is required", null);
+		const Id = req.query.id;// Get the userid  from the request body
+		console.log("userID1-----", Id);
+		if (!Id) {
+			return R(res, false, "user_id is required", null);
 		}
 
 		try {
 			// Find the portfolio item by main_img
 			const art = await models.portfolio.findOne({
 				where: {
-					id: UserId
+					id: Id.toString()
 				}
 			});
 
@@ -5856,7 +5856,7 @@ export default {
 			// Delete the found portfolio item
 			await art.destroy();
 
-			console.log("Deleted art item with main_img---", UserId);
+			console.log("Deleted art item with main_img---", Id);
 
 			return R(res, true, "Art deleted successfully", null);
 		} catch (error) {

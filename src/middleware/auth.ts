@@ -43,7 +43,6 @@ const ignorePaths = [
 	"/user/project/public-profile-finalised-image",
 	"/user/project/deposit-fund",
 	"/user/project/get-art",
-	"/user/project/delete_art_image",
 	// "/user/project/add-art-work",
 	// "/user/webhook/deposit-fund",
 ];
