@@ -20,6 +20,7 @@ const router = express.Router();
 //   });
 
 router.use(bodyParser.json());
+// router.use(express.json())
 
 router.get("/test", cn.test);
 

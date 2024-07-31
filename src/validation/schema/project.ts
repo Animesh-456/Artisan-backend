@@ -7,12 +7,19 @@ export default {
 		visibility: Joi.string().required(),
 		post_for: Joi.number().required(),
 		category: Joi.string().required(),
-		sub_category:Joi.string().required()
+		sub_category: Joi.string().required()
 	},
-	add_art : {
+	add_art: {
 		title: Joi.string().required(),
 		description: Joi.string().required(),
 		category: Joi.string().required(),
+	},
+	edit_art: {
+		id: Joi.number().required(),
+		title: Joi.string().required(),
+		description: Joi.string().required(),
+		category: Joi.string().required(),
+		existingFiles: Joi.required(),
 	},
 	question: {
 		project_id: Joi.string().required(),

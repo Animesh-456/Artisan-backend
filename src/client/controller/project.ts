@@ -5781,17 +5781,17 @@ export default {
 	delete_art_image: asyncWrapper(async (req: UserAuthRequest, res: Response) => {
 
 		// const mainImg = req.body.main_img; // Get the main_img from the request body
-		const UserId = req.body.id; // Get the main_img from the request body
-
-		if (!UserId) {
-			return R(res, false, "main_img is required", null);
+		const Id = req.query.id;// Get the userid  from the request body
+		console.log("userID1-----", Id);
+		if (!Id) {
+			return R(res, false, "user_id is required", null);
 		}
 
 		try {
 			// Find the portfolio item by main_img
 			const art = await models.portfolio.findOne({
 				where: {
-					id: UserId
+					id: Id.toString()
 				}
 			});
 
@@ -5802,7 +5802,7 @@ export default {
 			// Delete the found portfolio item
 			await art.destroy();
 
-			console.log("Deleted art item with main_img---", UserId);
+			console.log("Deleted art item with main_img---", Id);
 
 			return R(res, true, "Art deleted successfully", null);
 		} catch (error) {
@@ -5816,17 +5816,19 @@ export default {
 
 		let data = await Validate(
 			res,
-			["title", "description", "category"],
-			schema.project.add_art,
+			["id", "title", "description", "category", "existingFiles"],
+			schema.project.edit_art,
 			req.body,
 			{},
 		);
 
-		const body = data;
+		const body = req.body;
 		const id = req.query.id
 
-		try {
+		console.log("body:", body)
+		console.log("id", id)
 
+		try {
 
 			const user_portfolio = await models.portfolio.findOne({
 				where: {
@@ -5839,35 +5841,60 @@ export default {
 				return R(res, false, "No portfolio found");
 			}
 
+			if (body?.existingFiles == '') {
+				const file = await uploadProtpic(req, res)
+				const concatenatedData = file.join(',');
 
-			if (req.files?.file) {
-				var file = await uploadProtpic(req, res)
-				var concatenatedData = file.join(',');
+				const edit: any = {
+					title: body?.title,
+					main_img: file[0],
+					description: body?.description,
+					categories: body?.category,
+					attachment1: concatenatedData,
+					attachment2: "",
+					attachment3: "",
+					attachment4: "",
+					attachment5: "",
+				}
+
+
+				await user_portfolio?.update(edit);
+				return R(res, true, "Art work updated!", user_portfolio);
+
+			} else {
+				const mainFile = body?.existingFiles?.split(",")[0];
+				const existingAttachment1 = body?.existingFiles;
+				var concatenatedData = '';
+
+				if (req?.files?.file) {
+					var file = await uploadProtpic(req, res)
+					concatenatedData = `${existingAttachment1},${file.join(',')}`
+				} else {
+					concatenatedData = existingAttachment1
+				}
+
+				const edit: any = {
+					title: body?.title,
+					main_img: mainFile,
+					description: body?.description,
+					categories: body?.category,
+					attachment1: concatenatedData,
+					attachment2: "",
+					attachment3: "",
+					attachment4: "",
+					attachment5: "",
+				}
+
+
+				await user_portfolio?.update(edit);
+				return R(res, true, "Art work updated!", user_portfolio);
 			}
 
 
-			const edit: any = {
-				title: body?.title,
-				main_img: file[0] || null,
-				description: body?.description,
-				categories: body?.category,
-				attachment1: concatenatedData || null,
-				attachment2: "",
-				attachment3: "",
-				attachment4: "",
-				attachment5: "",
-			}
-
-
-			await user_portfolio?.update(edit);
-
-			return R(res, true, "Art work added!", user_portfolio);
 		} catch (error) {
+			console.log(error)
 			return R(res, false, "Error editing art work!", error);
 		}
-
-
-
 
 	}),
 

@@ -277,7 +277,7 @@ export const uploadsendmsgFile = async (req: UserAuthRequest, res: Response) => 
 						filename.substring(0, 3) +
 						Date.now() +
 						req.user?.id +
-						index+
+						index +
 						extensionName;
 				} else {
 					filename =
@@ -339,10 +339,12 @@ export const uploadProtpic = async (req: UserAuthRequest, res: Response) => {
 						.join("") + req.user?.id + `${index}` + extensionName;
 				} else {
 					filename =
-						filename.substring(0, 10) +
-						`${index}` +
-						req.user?.id +
-						extensionName;
+						filename.substring(0, 3) + Date.now()
+							.toString(36)
+							.toUpperCase()
+							.split("")
+							.reverse()
+							.join("") + `${index}` + extensionName;
 				}
 
 				file.mv(`${publicPath}${filename}`);
@@ -364,44 +366,44 @@ export const uploadProtpic = async (req: UserAuthRequest, res: Response) => {
 };
 
 export const uploadInvoice = async (req: UserAuthRequest, res: Response) => {
-    try {
-        let publicPath = env.invoice;
+	try {
+		let publicPath = env.invoice;
 
-        if (!req.files) {
-            return R(res, false, "No file uploaded!");
-        }
+		if (!req.files) {
+			return R(res, false, "No file uploaded!");
+		}
 
-        const file = req?.files?.pdfFile;
-        const data: any = [];
+		const file = req?.files?.pdfFile;
+		const data: any = [];
 
-        const move = (image: any, i: any) => {
-            const file = image;
-            let filename = file?.name;
-            let index = i + 1;
-            try {
-                const month = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+		const move = (image: any, i: any) => {
+			const file = image;
+			let filename = file?.name;
+			let index = i + 1;
+			try {
+				const month = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
-                const today = new Date();
-                const _path = `${today.getUTCFullYear()}/${month[today.getMonth()]}/`
+				const today = new Date();
+				const _path = `${today.getUTCFullYear()}/${month[today.getMonth()]}/`
 
-                fs.mkdirSync(`${publicPath}/${_path}`, { recursive: true });
+				fs.mkdirSync(`${publicPath}/${_path}`, { recursive: true });
 
-                file.mv(`${publicPath}${_path}${filename}`);
-            } catch (e) {
-                return R(res, false, "Machined parts image1 File upload failed");
-            }
+				file.mv(`${publicPath}${_path}${filename}`);
+			} catch (e) {
+				return R(res, false, "Machined parts image1 File upload failed");
+			}
 
-            data.push(filename);
-        };
+			data.push(filename);
+		};
 
-        Array.isArray(file)
-            ? file.map((file, i) => move(file, i))
-            : move(file, 0);
+		Array.isArray(file)
+			? file.map((file, i) => move(file, i))
+			: move(file, 0);
 
-        return data;
-    } catch (e) {
-        return R(res, false, "Machined parts image file upload failed");
-    }
+		return data;
+	} catch (e) {
+		return R(res, false, "Machined parts image file upload failed");
+	}
 };
 
 export const uploadadditionalFile = async (req: UserAuthRequest, res: Response, obj: any) => {
