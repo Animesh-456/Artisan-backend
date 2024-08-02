@@ -5899,4 +5899,34 @@ export default {
 	}),
 
 
+	get_portfolio_art: asyncWrapper(async (req: UserAuthRequest, res: Response) => {
+		const id = req.query.id;
+		console.log("get art userId---", id)
+		const art = await models.portfolio.findOne({
+			where: {
+				id: id?.toString()
+			},
+
+			include: [
+				{
+					model: models.users,
+					as: "programmer",
+					where: {
+						id: { [Op.col]: "user_id" },
+					},
+					attributes: ["user_name", "logo"],
+					required: false,
+				}
+			],
+		})
+
+		if (!art) {
+			return R(res, false, "No artwork found!")
+		}
+		console.log("get art response---", art)
+
+		return R(res, true, "get art", art);
+	}),
+
+
 };

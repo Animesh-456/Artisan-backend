@@ -8,6 +8,7 @@ import type { prebid_messages, prebid_messagesId } from './prebid_messages';
 import type { projects, projectsId } from './projects';
 import type { reviews, reviewsId } from './reviews';
 import type { transactions, transactionsId } from './transactions';
+import type { portfolio, portfolioId } from './portfolio'
 
 export interface usersAttributes {
   id: number;
@@ -283,286 +284,299 @@ export class users extends Model<usersAttributes, usersCreationAttributes> imple
   hasReciever_transactions!: Sequelize.HasManyHasAssociationsMixin<transactions, transactionsId>;
   countReciever_transactions!: Sequelize.HasManyCountAssociationsMixin;
 
+
+  portfolio!: portfolio[];
+  getPortfolios!: Sequelize.HasManyGetAssociationsMixin<portfolio>;
+  setPortfolios!: Sequelize.HasManySetAssociationsMixin<portfolio, portfolioId>;
+  addPortfolio!: Sequelize.HasManyAddAssociationMixin<portfolio, portfolioId>;
+  addPortfolios!: Sequelize.HasManyAddAssociationsMixin<portfolio, portfolioId>;
+  createPortfolio!: Sequelize.HasManyCreateAssociationMixin<portfolio>;
+  removePortfolio!: Sequelize.HasManyRemoveAssociationMixin<portfolio, portfolioId>;
+  removePortfolios!: Sequelize.HasManyRemoveAssociationsMixin<portfolio, portfolioId>;
+  hasPortfolio!: Sequelize.HasManyHasAssociationMixin<portfolio, portfolioId>;
+  hasPortfolios!: Sequelize.HasManyHasAssociationsMixin<portfolio, portfolioId>;
+  countPortfolios!: Sequelize.HasManyCountAssociationsMixin;
+
   static initModel(sequelize: Sequelize.Sequelize): typeof users {
     return sequelize.define('users', {
-    id: {
-      autoIncrement: true,
-      type: DataTypes.BIGINT.UNSIGNED,
-      allowNull: false,
-      primaryKey: true
-    },
-    refid: {
-      type: DataTypes.STRING(128),
-      allowNull: false,
-      defaultValue: "0"
-    },
-    country_code: {
-      type: DataTypes.INTEGER.UNSIGNED,
-      allowNull: false,
-      references: {
-        model: 'country',
-        key: 'id'
+      id: {
+        autoIncrement: true,
+        type: DataTypes.BIGINT.UNSIGNED,
+        allowNull: false,
+        primaryKey: true
+      },
+      refid: {
+        type: DataTypes.STRING(128),
+        allowNull: false,
+        defaultValue: "0"
+      },
+      country_code: {
+        type: DataTypes.INTEGER.UNSIGNED,
+        allowNull: false,
+        references: {
+          model: 'country',
+          key: 'id'
+        }
+      },
+      user_name: {
+        type: DataTypes.STRING(128),
+        allowNull: true
+      },
+      name: {
+        type: DataTypes.STRING(128),
+        allowNull: false
+      },
+      surname: {
+        type: DataTypes.STRING(255),
+        allowNull: false
+      },
+      address1: {
+        type: DataTypes.TEXT,
+        allowNull: true
+      },
+      address2: {
+        type: DataTypes.TEXT,
+        allowNull: true
+      },
+      description: {
+        type: DataTypes.TEXT,
+        allowNull: true
+      },
+      company_name: {
+        type: DataTypes.STRING(255),
+        allowNull: true
+      },
+      company_number: {
+        type: DataTypes.STRING(255),
+        allowNull: true
+      },
+      role_id: {
+        type: DataTypes.SMALLINT,
+        allowNull: false
+      },
+      password: {
+        type: DataTypes.STRING(500),
+        allowNull: true
+      },
+      email: {
+        type: DataTypes.STRING(128),
+        allowNull: false
+      },
+      paypal_email: {
+        type: DataTypes.STRING(255),
+        allowNull: true
+      },
+      profile_desc: {
+        type: DataTypes.TEXT,
+        allowNull: true
+      },
+      service_desc: {
+        type: DataTypes.TEXT,
+        allowNull: true
+      },
+      voter: {
+        type: DataTypes.STRING(100),
+        allowNull: true
+      },
+      prof_pic: {
+        type: DataTypes.STRING(255),
+        allowNull: true
+      },
+      prot_pic: {
+        type: DataTypes.STRING(255),
+        allowNull: true
+      },
+      pdf_file: {
+        type: DataTypes.TEXT,
+        allowNull: true
+      },
+      account: {
+        type: DataTypes.STRING(100),
+        allowNull: true
+      },
+      user_status: {
+        type: DataTypes.TINYINT,
+        allowNull: false,
+        defaultValue: 0
+      },
+      activation_key: {
+        type: DataTypes.STRING(32),
+        allowNull: true
+      },
+      zcode: {
+        type: DataTypes.CHAR(100),
+        allowNull: true
+      },
+      Squestion: {
+        type: DataTypes.STRING(100),
+        allowNull: true
+      },
+      answer: {
+        type: DataTypes.STRING(100),
+        allowNull: true
+      },
+      state: {
+        type: DataTypes.STRING(64),
+        allowNull: true
+      },
+      city: {
+        type: DataTypes.STRING(64),
+        allowNull: true
+      },
+      country_symbol: {
+        type: DataTypes.STRING(100),
+        allowNull: true
+      },
+      project_notify: {
+        type: DataTypes.CHAR(10),
+        allowNull: true
+      },
+      bid_notify: {
+        type: DataTypes.CHAR(10),
+        allowNull: true
+      },
+      message_notify: {
+        type: DataTypes.CHAR(10),
+        allowNull: true
+      },
+      rate: {
+        type: DataTypes.SMALLINT,
+        allowNull: true
+      },
+      logo: {
+        type: DataTypes.STRING(64),
+        allowNull: true
+      },
+      created: {
+        type: DataTypes.INTEGER,
+        allowNull: true
+      },
+      last_activity: {
+        type: DataTypes.INTEGER,
+        allowNull: true
+      },
+      user_rating: {
+        type: DataTypes.SMALLINT,
+        allowNull: true
+      },
+      num_reviews: {
+        type: DataTypes.INTEGER,
+        allowNull: true
+      },
+      rating_hold: {
+        type: DataTypes.INTEGER,
+        allowNull: true
+      },
+      tot_rating: {
+        type: DataTypes.INTEGER,
+        allowNull: true
+      },
+      suspend_status: {
+        type: DataTypes.ENUM('0', '1'),
+        allowNull: false,
+        defaultValue: "0"
+      },
+      ban_status: {
+        type: DataTypes.ENUM('0', '1'),
+        allowNull: false,
+        defaultValue: "0"
+      },
+      admin_status: {
+        type: DataTypes.CHAR(1),
+        allowNull: true
+      },
+      admin_status_uk: {
+        type: DataTypes.CHAR(1),
+        allowNull: true
+      },
+      admin_status_it: {
+        type: DataTypes.CHAR(1),
+        allowNull: true
+      },
+      job_fr: {
+        type: DataTypes.INTEGER,
+        allowNull: true
+      },
+      job_uk: {
+        type: DataTypes.INTEGER,
+        allowNull: true
+      },
+      job_it: {
+        type: DataTypes.INTEGER,
+        allowNull: true
+      },
+      choice: {
+        type: DataTypes.INTEGER,
+        allowNull: true
+      },
+      supLogin: {
+        type: DataTypes.TEXT,
+        allowNull: true
+      },
+      lang: {
+        type: DataTypes.STRING(11),
+        allowNull: true
+      },
+      pro_user: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        defaultValue: 0
+      },
+      pro_vat: {
+        type: DataTypes.FLOAT,
+        allowNull: true
+      },
+      siren: {
+        type: DataTypes.STRING(255),
+        allowNull: true
+      },
+      mailchimp_id: {
+        type: DataTypes.STRING(100),
+        allowNull: true
+      },
+      nxtduedate: {
+        type: DataTypes.DATEONLY,
+        allowNull: true
+      },
+      entrepreneur: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+        comment: "0=>Not Entrepreneur and 1 => Entrepreneur"
+      },
+      bid_status: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        defaultValue: 1,
+        comment: "0=>Not able to bid and 1 => able to bid"
+      },
+      last_seen: {
+        type: DataTypes.DATE,
+        allowNull: true
+      },
+      show_modal: {
+        type: DataTypes.TINYINT,
+        allowNull: true
       }
-    },
-    user_name: {
-      type: DataTypes.STRING(128),
-      allowNull: true
-    },
-    name: {
-      type: DataTypes.STRING(128),
-      allowNull: false
-    },
-    surname: {
-      type: DataTypes.STRING(255),
-      allowNull: false
-    },
-    address1: {
-      type: DataTypes.TEXT,
-      allowNull: true
-    },
-    address2: {
-      type: DataTypes.TEXT,
-      allowNull: true
-    },
-    description: {
-      type: DataTypes.TEXT,
-      allowNull: true
-    },
-    company_name: {
-      type: DataTypes.STRING(255),
-      allowNull: true
-    },
-    company_number: {
-      type: DataTypes.STRING(255),
-      allowNull: true
-    },
-    role_id: {
-      type: DataTypes.SMALLINT,
-      allowNull: false
-    },
-    password: {
-      type: DataTypes.STRING(500),
-      allowNull: true
-    },
-    email: {
-      type: DataTypes.STRING(128),
-      allowNull: false
-    },
-    paypal_email: {
-      type: DataTypes.STRING(255),
-      allowNull: true
-    },
-    profile_desc: {
-      type: DataTypes.TEXT,
-      allowNull: true
-    },
-    service_desc: {
-      type: DataTypes.TEXT,
-      allowNull: true
-    },
-    voter: {
-      type: DataTypes.STRING(100),
-      allowNull: true
-    },
-    prof_pic: {
-      type: DataTypes.STRING(255),
-      allowNull: true
-    },
-    prot_pic: {
-      type: DataTypes.STRING(255),
-      allowNull: true
-    },
-    pdf_file: {
-      type: DataTypes.TEXT,
-      allowNull: true
-    },
-    account: {
-      type: DataTypes.STRING(100),
-      allowNull: true
-    },
-    user_status: {
-      type: DataTypes.TINYINT,
-      allowNull: false,
-      defaultValue: 0
-    },
-    activation_key: {
-      type: DataTypes.STRING(32),
-      allowNull: true
-    },
-    zcode: {
-      type: DataTypes.CHAR(100),
-      allowNull: true
-    },
-    Squestion: {
-      type: DataTypes.STRING(100),
-      allowNull: true
-    },
-    answer: {
-      type: DataTypes.STRING(100),
-      allowNull: true
-    },
-    state: {
-      type: DataTypes.STRING(64),
-      allowNull: true
-    },
-    city: {
-      type: DataTypes.STRING(64),
-      allowNull: true
-    },
-    country_symbol: {
-      type: DataTypes.STRING(100),
-      allowNull: true
-    },
-    project_notify: {
-      type: DataTypes.CHAR(10),
-      allowNull: true
-    },
-    bid_notify: {
-      type: DataTypes.CHAR(10),
-      allowNull: true
-    },
-    message_notify: {
-      type: DataTypes.CHAR(10),
-      allowNull: true
-    },
-    rate: {
-      type: DataTypes.SMALLINT,
-      allowNull: true
-    },
-    logo: {
-      type: DataTypes.STRING(64),
-      allowNull: true
-    },
-    created: {
-      type: DataTypes.INTEGER,
-      allowNull: true
-    },
-    last_activity: {
-      type: DataTypes.INTEGER,
-      allowNull: true
-    },
-    user_rating: {
-      type: DataTypes.SMALLINT,
-      allowNull: true
-    },
-    num_reviews: {
-      type: DataTypes.INTEGER,
-      allowNull: true
-    },
-    rating_hold: {
-      type: DataTypes.INTEGER,
-      allowNull: true
-    },
-    tot_rating: {
-      type: DataTypes.INTEGER,
-      allowNull: true
-    },
-    suspend_status: {
-      type: DataTypes.ENUM('0','1'),
-      allowNull: false,
-      defaultValue: "0"
-    },
-    ban_status: {
-      type: DataTypes.ENUM('0','1'),
-      allowNull: false,
-      defaultValue: "0"
-    },
-    admin_status: {
-      type: DataTypes.CHAR(1),
-      allowNull: true
-    },
-    admin_status_uk: {
-      type: DataTypes.CHAR(1),
-      allowNull: true
-    },
-    admin_status_it: {
-      type: DataTypes.CHAR(1),
-      allowNull: true
-    },
-    job_fr: {
-      type: DataTypes.INTEGER,
-      allowNull: true
-    },
-    job_uk: {
-      type: DataTypes.INTEGER,
-      allowNull: true
-    },
-    job_it: {
-      type: DataTypes.INTEGER,
-      allowNull: true
-    },
-    choice: {
-      type: DataTypes.INTEGER,
-      allowNull: true
-    },
-    supLogin: {
-      type: DataTypes.TEXT,
-      allowNull: true
-    },
-    lang: {
-      type: DataTypes.STRING(11),
-      allowNull: true
-    },
-    pro_user: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-      defaultValue: 0
-    },
-    pro_vat: {
-      type: DataTypes.FLOAT,
-      allowNull: true
-    },
-    siren: {
-      type: DataTypes.STRING(255),
-      allowNull: true
-    },
-    mailchimp_id: {
-      type: DataTypes.STRING(100),
-      allowNull: true
-    },
-    nxtduedate: {
-      type: DataTypes.DATEONLY,
-      allowNull: true
-    },
-    entrepreneur: {
-      type: DataTypes.INTEGER,
-      allowNull: true,
-      comment: "0=>Not Entrepreneur and 1 => Entrepreneur"
-    },
-    bid_status: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-      defaultValue: 1,
-      comment: "0=>Not able to bid and 1 => able to bid"
-    },
-    last_seen: {
-      type: DataTypes.DATE,
-      allowNull: true
-    },
-    show_modal: {
-      type: DataTypes.TINYINT,
-      allowNull: true
-    }
-  }, {
-    tableName: 'users',
-    timestamps: true,
-    indexes: [
-      {
-        name: "PRIMARY",
-        unique: true,
-        using: "BTREE",
-        fields: [
-          { name: "id" },
-        ]
-      },
-      {
-        name: "country_code",
-        using: "BTREE",
-        fields: [
-          { name: "country_code" },
-        ]
-      },
-    ]
-  }) as typeof users;
+    }, {
+      tableName: 'users',
+      timestamps: true,
+      indexes: [
+        {
+          name: "PRIMARY",
+          unique: true,
+          using: "BTREE",
+          fields: [
+            { name: "id" },
+          ]
+        },
+        {
+          name: "country_code",
+          using: "BTREE",
+          fields: [
+            { name: "country_code" },
+          ]
+        },
+      ]
+    }) as typeof users;
   }
 }

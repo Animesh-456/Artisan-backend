@@ -1,5 +1,6 @@
 import * as Sequelize from 'sequelize';
 import { DataTypes, Model, Optional } from 'sequelize';
+import type { users, usersId } from './users';
 
 export interface portfolioAttributes {
   id: number;
@@ -34,67 +35,88 @@ export class portfolio extends Model<portfolioAttributes, portfolioCreationAttri
   attachment5!: string;
 
 
+
+  programmer!: users;
+  getProgrammer!: Sequelize.BelongsToGetAssociationMixin<users>;
+  setProgrammer!: Sequelize.BelongsToSetAssociationMixin<users, usersId>;
+  createProgrammer!: Sequelize.BelongsToCreateAssociationMixin<users>;
+
+
+
+
+
   static initModel(sequelize: Sequelize.Sequelize): typeof portfolio {
     return sequelize.define('portfolio', {
-    id: {
-      autoIncrement: true,
-      type: DataTypes.INTEGER,
-      allowNull: false,
-      primaryKey: true
-    },
-    user_id: {
-      type: DataTypes.INTEGER,
-      allowNull: false
-    },
-    title: {
-      type: DataTypes.STRING(100),
-      allowNull: false
-    },
-    main_img: {
-      type: DataTypes.STRING(200),
-      allowNull: false
-    },
-    description: {
-      type: DataTypes.TEXT,
-      allowNull: false
-    },
-    categories: {
-      type: DataTypes.STRING(255),
-      allowNull: false
-    },
-    attachment1: {
-      type: DataTypes.STRING(200),
-      allowNull: false
-    },
-    attachment2: {
-      type: DataTypes.STRING(200),
-      allowNull: false
-    },
-    attachment3: {
-      type: DataTypes.STRING(255),
-      allowNull: false
-    },
-    attachment4: {
-      type: DataTypes.STRING(255),
-      allowNull: false
-    },
-    attachment5: {
-      type: DataTypes.STRING(255),
-      allowNull: false
-    }
-  }, {
-    tableName: 'portfolio',
-    timestamps: false,
-    indexes: [
-      {
-        name: "PRIMARY",
-        unique: true,
-        using: "BTREE",
-        fields: [
-          { name: "id" },
-        ]
+      id: {
+        autoIncrement: true,
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        primaryKey: true
       },
-    ]
-  }) as typeof portfolio;
+      user_id: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        references: {
+          model: 'users',
+          key: 'id'
+        }
+      },
+      title: {
+        type: DataTypes.STRING(100),
+        allowNull: false
+      },
+      main_img: {
+        type: DataTypes.STRING(200),
+        allowNull: false
+      },
+      description: {
+        type: DataTypes.TEXT,
+        allowNull: false
+      },
+      categories: {
+        type: DataTypes.STRING(255),
+        allowNull: false
+      },
+      attachment1: {
+        type: DataTypes.STRING(200),
+        allowNull: false
+      },
+      attachment2: {
+        type: DataTypes.STRING(200),
+        allowNull: false
+      },
+      attachment3: {
+        type: DataTypes.STRING(255),
+        allowNull: false
+      },
+      attachment4: {
+        type: DataTypes.STRING(255),
+        allowNull: false
+      },
+      attachment5: {
+        type: DataTypes.STRING(255),
+        allowNull: false
+      }
+    }, {
+      tableName: 'portfolio',
+      timestamps: false,
+      indexes: [
+        {
+          name: "PRIMARY",
+          unique: true,
+          using: "BTREE",
+          fields: [
+            { name: "id" },
+          ]
+        },
+        {
+          name: "user_id",
+          using: "BTREE",
+          fields: [
+            { name: "user_id" },
+          ]
+        },
+      ]
+    }) as typeof portfolio;
   }
 }

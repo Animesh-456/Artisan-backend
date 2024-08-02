@@ -609,6 +609,10 @@ export function initModels(sequelize: Sequelize) {
   transactions.belongsTo(users, { as: "reciever", foreignKey: "reciever_id"});
   users.hasMany(transactions, { as: "reciever_transactions", foreignKey: "reciever_id"});
 
+
+  portfolio.belongsTo(users, { as: "programmer", foreignKey: "user_id"});
+  users.hasMany(portfolio, { as: "programmer_portfolio", foreignKey: "user_id"});
+
   return {
     admin_apprv_imgs: admin_apprv_imgs,
     admin_site: admin_site,
