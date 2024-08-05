@@ -185,6 +185,8 @@ import { user_relation as _user_relation } from "./user_relation";
 import type { user_relationAttributes, user_relationCreationAttributes } from "./user_relation";
 import { users as _users } from "./users";
 import type { usersAttributes, usersCreationAttributes } from "./users";
+import { Project_categories as _Project_categories } from "./Project_categories";
+import type { Project_categoriesAttributes, Project_categoriesCreationAttributes } from "./Project_categories";
 
 export {
   _admin_apprv_imgs as admin_apprv_imgs,
@@ -280,6 +282,7 @@ export {
   _user_list as user_list,
   _user_relation as user_relation,
   _users as users,
+  _Project_categories as Project_categories,
 };
 
 export type {
@@ -469,6 +472,8 @@ export type {
   user_relationCreationAttributes,
   usersAttributes,
   usersCreationAttributes,
+  Project_categoriesAttributes,
+  Project_categoriesCreationAttributes,
 };
 
 export function initModels(sequelize: Sequelize) {
@@ -565,53 +570,59 @@ export function initModels(sequelize: Sequelize) {
   const user_list = _user_list.initModel(sequelize);
   const user_relation = _user_relation.initModel(sequelize);
   const users = _users.initModel(sequelize);
-
-  users.belongsTo(country, { as: "country_code_country", foreignKey: "country_code"});
-  country.hasMany(users, { as: "users", foreignKey: "country_code"});
-  prebid_messages.belongsTo(prebid_messages, { as: "reply_for_prebid_message", foreignKey: "reply_for"});
-  prebid_messages.hasMany(prebid_messages, { as: "prebid_messages", foreignKey: "reply_for"});
-  bids.belongsTo(projects, { as: "project", foreignKey: "project_id"});
-  projects.hasMany(bids, { as: "bids", foreignKey: "project_id"});
-  messages.belongsTo(projects, { as: "project", foreignKey: "project_id"});
-  projects.hasMany(messages, { as: "messages", foreignKey: "project_id"});
-  notif_email_list.belongsTo(projects, { as: "project", foreignKey: "project_id"});
-  projects.hasMany(notif_email_list, { as: "notif_email_lists", foreignKey: "project_id"});
-  prebid_messages.belongsTo(projects, { as: "project", foreignKey: "project_id"});
-  projects.hasMany(prebid_messages, { as: "prebid_messages", foreignKey: "project_id"});
-  project_images.belongsTo(projects, { as: "project", foreignKey: "project_id"});
-  projects.hasMany(project_images, { as: "project_images", foreignKey: "project_id"});
-  reviews.belongsTo(projects, { as: "project", foreignKey: "project_id"});
-  projects.hasMany(reviews, { as: "reviews", foreignKey: "project_id"});
-  transactions.belongsTo(projects, { as: "project", foreignKey: "project_id"});
-  projects.hasMany(transactions, { as: "transactions", foreignKey: "project_id"});
-  invoices.belongsTo(transactions, { as: "transaction", foreignKey: "transaction_id"});
-  transactions.hasMany(invoices, { as: "invoices", foreignKey: "transaction_id"});
-  bids.belongsTo(users, { as: "user", foreignKey: "user_id"});
-  users.hasMany(bids, { as: "bids", foreignKey: "user_id"});
-  messages.belongsTo(users, { as: "from", foreignKey: "from_id"});
-  users.hasMany(messages, { as: "messages", foreignKey: "from_id"});
-  messages.belongsTo(users, { as: "to", foreignKey: "to_id"});
-  users.hasMany(messages, { as: "to_messages", foreignKey: "to_id"});
-  notif_email_list.belongsTo(users, { as: "customer", foreignKey: "customer_id"});
-  users.hasMany(notif_email_list, { as: "notif_email_lists", foreignKey: "customer_id"});
-  prebid_messages.belongsTo(users, { as: "from", foreignKey: "from_id"});
-  users.hasMany(prebid_messages, { as: "prebid_messages", foreignKey: "from_id"});
-  projects.belongsTo(users, { as: "creator", foreignKey: "creator_id"});
-  users.hasMany(projects, { as: "projects", foreignKey: "creator_id"});
-  projects.belongsTo(users, { as: "programmer", foreignKey: "programmer_id"});
-  users.hasMany(projects, { as: "programmer_projects", foreignKey: "programmer_id"});
-  reviews.belongsTo(users, { as: "buyer", foreignKey: "buyer_id"});
-  users.hasMany(reviews, { as: "reviews", foreignKey: "buyer_id"});
-  reviews.belongsTo(users, { as: "provider", foreignKey: "provider_id"});
-  users.hasMany(reviews, { as: "provider_reviews", foreignKey: "provider_id"});
-  transactions.belongsTo(users, { as: "creator", foreignKey: "creator_id"});
-  users.hasMany(transactions, { as: "transactions", foreignKey: "creator_id"});
-  transactions.belongsTo(users, { as: "reciever", foreignKey: "reciever_id"});
-  users.hasMany(transactions, { as: "reciever_transactions", foreignKey: "reciever_id"});
+  const Project_categories = _Project_categories.initModel(sequelize);
 
 
-  portfolio.belongsTo(users, { as: "programmer", foreignKey: "user_id"});
-  users.hasMany(portfolio, { as: "programmer_portfolio", foreignKey: "user_id"});
+  users.belongsTo(country, { as: "country_code_country", foreignKey: "country_code" });
+  country.hasMany(users, { as: "users", foreignKey: "country_code" });
+  prebid_messages.belongsTo(prebid_messages, { as: "reply_for_prebid_message", foreignKey: "reply_for" });
+  prebid_messages.hasMany(prebid_messages, { as: "prebid_messages", foreignKey: "reply_for" });
+  bids.belongsTo(projects, { as: "project", foreignKey: "project_id" });
+  projects.hasMany(bids, { as: "bids", foreignKey: "project_id" });
+  messages.belongsTo(projects, { as: "project", foreignKey: "project_id" });
+  projects.hasMany(messages, { as: "messages", foreignKey: "project_id" });
+  notif_email_list.belongsTo(projects, { as: "project", foreignKey: "project_id" });
+  projects.hasMany(notif_email_list, { as: "notif_email_lists", foreignKey: "project_id" });
+  prebid_messages.belongsTo(projects, { as: "project", foreignKey: "project_id" });
+  projects.hasMany(prebid_messages, { as: "prebid_messages", foreignKey: "project_id" });
+  project_images.belongsTo(projects, { as: "project", foreignKey: "project_id" });
+  projects.hasMany(project_images, { as: "project_images", foreignKey: "project_id" });
+  reviews.belongsTo(projects, { as: "project", foreignKey: "project_id" });
+  projects.hasMany(reviews, { as: "reviews", foreignKey: "project_id" });
+  transactions.belongsTo(projects, { as: "project", foreignKey: "project_id" });
+  projects.hasMany(transactions, { as: "transactions", foreignKey: "project_id" });
+  invoices.belongsTo(transactions, { as: "transaction", foreignKey: "transaction_id" });
+  transactions.hasMany(invoices, { as: "invoices", foreignKey: "transaction_id" });
+  bids.belongsTo(users, { as: "user", foreignKey: "user_id" });
+  users.hasMany(bids, { as: "bids", foreignKey: "user_id" });
+  messages.belongsTo(users, { as: "from", foreignKey: "from_id" });
+  users.hasMany(messages, { as: "messages", foreignKey: "from_id" });
+  messages.belongsTo(users, { as: "to", foreignKey: "to_id" });
+  users.hasMany(messages, { as: "to_messages", foreignKey: "to_id" });
+  notif_email_list.belongsTo(users, { as: "customer", foreignKey: "customer_id" });
+  users.hasMany(notif_email_list, { as: "notif_email_lists", foreignKey: "customer_id" });
+  prebid_messages.belongsTo(users, { as: "from", foreignKey: "from_id" });
+  users.hasMany(prebid_messages, { as: "prebid_messages", foreignKey: "from_id" });
+  projects.belongsTo(users, { as: "creator", foreignKey: "creator_id" });
+  users.hasMany(projects, { as: "projects", foreignKey: "creator_id" });
+  projects.belongsTo(users, { as: "programmer", foreignKey: "programmer_id" });
+  users.hasMany(projects, { as: "programmer_projects", foreignKey: "programmer_id" });
+  reviews.belongsTo(users, { as: "buyer", foreignKey: "buyer_id" });
+  users.hasMany(reviews, { as: "reviews", foreignKey: "buyer_id" });
+  reviews.belongsTo(users, { as: "provider", foreignKey: "provider_id" });
+  users.hasMany(reviews, { as: "provider_reviews", foreignKey: "provider_id" });
+  transactions.belongsTo(users, { as: "creator", foreignKey: "creator_id" });
+  users.hasMany(transactions, { as: "transactions", foreignKey: "creator_id" });
+  transactions.belongsTo(users, { as: "reciever", foreignKey: "reciever_id" });
+  users.hasMany(transactions, { as: "reciever_transactions", foreignKey: "reciever_id" });
+
+
+  portfolio.belongsTo(users, { as: "programmer", foreignKey: "user_id" });
+  users.hasMany(portfolio, { as: "programmer_portfolio", foreignKey: "user_id" });
+
+  Project_categories.hasMany(Project_categories, { as: 'subcategories', foreignKey: 'parent_id' });
+  Project_categories.belongsTo(Project_categories, { as: 'parent', foreignKey: 'parent_id' });
+
 
   return {
     admin_apprv_imgs: admin_apprv_imgs,
@@ -640,6 +651,7 @@ export function initModels(sequelize: Sequelize) {
     dispute_agree: dispute_agree,
     draftprojects: draftprojects,
     email_templates: email_templates,
+    Project_categories: Project_categories,
     escrow_release_request: escrow_release_request,
     euro_to_gbp: euro_to_gbp,
     faq_categories: faq_categories,
