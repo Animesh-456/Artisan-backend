@@ -21,6 +21,7 @@ import Stripe from "stripe";
 
 
 import { Cashfree } from "cashfree-pg";
+import { Project_categories } from "@model/Project_categories";
 
 const crypto = require("crypto")
 
@@ -5926,6 +5927,46 @@ export default {
 		console.log("get art response---", art)
 
 		return R(res, true, "get art", art);
+	}),
+
+	get_category_subcategory: asyncWrapper(async (req: UserAuthRequest, res: Response) => {
+		try {
+			// const categories = await models.Project_categories.findAll({
+			// 	where: {
+			// 		parent_id: 0,
+			// 	},
+			// 	include: [
+			// 		{
+			// 			model: Project_categories,
+			// 			as: 'subcategories',
+			// 			required: false
+			// 		},
+			// 	],
+			// });
+
+			// console.log("categories", categories)
+
+
+			const categories = await models.Project_categories.findAll({
+				where: { parent_id: 0 },
+
+			});
+
+
+			const subCAtegories = await models.Project_categories.findAll({
+				where: {
+					parent_id: {
+						[Op.ne]: 0
+					}
+				}
+			})
+
+			return R(res, true, "category and subcategory", { categories: categories, subCAtegories: subCAtegories })
+		} catch (error) {
+			console.error('Error fetching categories with subcategories:', error);
+			return R(res, false, "category and subcategory not found", error)
+		}
+
 	}),
 
 

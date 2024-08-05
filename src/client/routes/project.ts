@@ -140,6 +140,7 @@ router.post("/edit-art-portfolio", cn.edit_art_portfolio);
 router.get("/project-detail-seo", cn.project_detail_seo);
 router.get("/public-profile-finalised-image", cn.public_profile_finalised_image);
 router.get("/get-portfolio-art", cn.get_portfolio_art);
+router.get("/get-category-subcategory", cn.get_category_subcategory);
 router.post("/add-art-work", cn.add_art_work);
 router.get("/get-art", cn.get_art);
 

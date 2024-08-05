@@ -620,8 +620,8 @@ export function initModels(sequelize: Sequelize) {
   portfolio.belongsTo(users, { as: "programmer", foreignKey: "user_id" });
   users.hasMany(portfolio, { as: "programmer_portfolio", foreignKey: "user_id" });
 
-  Project_categories.hasMany(Project_categories, { as: 'subcategories', foreignKey: 'parent_id' });
-  Project_categories.belongsTo(Project_categories, { as: 'parent', foreignKey: 'parent_id' });
+  Project_categories.belongsTo(Project_categories, { as: 'subcategories', foreignKey: 'parent_id' });
+  Project_categories.hasMany(Project_categories, { as: 'parent', foreignKey: 'parent_id' });
 
 
   return {
