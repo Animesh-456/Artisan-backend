@@ -596,7 +596,7 @@ export default {
 			return R(res, false, "please provide a project ID");
 		}
 
-		const project = await models.projects.findOne({
+		const project: any = await models.projects.findOne({
 			where: {
 				id: project_id.toString(),
 			},
@@ -690,6 +690,7 @@ export default {
 		if (!project) {
 			return R(res, false, "No project found");
 		}
+
 
 		return R(res, true, "project details", project);
 	}),
