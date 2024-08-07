@@ -1150,8 +1150,6 @@ export default {
 			}
 
 
-
-
 			let supplier_task_id = 30;
 
 			const mailDataSupp = await models.email_templates.findOne({
@@ -5953,7 +5951,7 @@ export default {
 			});
 
 
-			const subCAtegories = await models.Project_categories.findAll({
+			const subCategories = await models.Project_categories.findAll({
 				where: {
 					parent_id: {
 						[Op.ne]: 0
@@ -5961,7 +5959,7 @@ export default {
 				}
 			})
 
-			return R(res, true, "category and subcategory", { categories: categories, subCAtegories: subCAtegories })
+			return R(res, true, "category and subcategory", { categories: categories, subCategories: subCategories })
 		} catch (error) {
 			console.error('Error fetching categories with subcategories:', error);
 			return R(res, false, "category and subcategory not found", error)
