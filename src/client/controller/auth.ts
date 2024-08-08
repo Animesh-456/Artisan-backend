@@ -243,6 +243,7 @@ export default {
 				company_number: Joi.string().required(),
 				Squestion: Joi.string().required(),
 				answer: Joi.string().required(),
+				category: Joi.string().required(),
 			})
 				.unknown(true)
 				.validate(req.body);
