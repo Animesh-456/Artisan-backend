@@ -934,7 +934,7 @@ export default {
 		})
 
 		const amt = req.body.val;
-		const paypal_email = req.body.paypal_email;
+		const paypal_email = req.body.paypal_email ? req.body.paypal_email : "";
 
 		console.log("The amount from frontend is :-", amt);
 
