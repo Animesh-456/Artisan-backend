@@ -7,7 +7,7 @@ export default {
 		visibility: Joi.string().required(),
 		post_for: Joi.number().required(),
 		category: Joi.required(),
-		sub_category: Joi.string().required()
+		// sub_category: Joi.string().required()
 	},
 	add_art: {
 		title: Joi.string().required(),
