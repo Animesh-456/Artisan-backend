@@ -58,9 +58,18 @@ export default {
 			country_code: 2
 		};
 
+		// Fetch all categories to create a mapping
+		const categories = await models.Project_categories.findAll();
+		const categoryMap = new Map<number, string>();
+		categories.forEach(category => {
+			categoryMap.set(category.id, category?.category_name);
+		});
+
 		// Conditionally add category to the where clause if it's not an empty string
 		if (opt.category && opt.category !== '') {
-			whereClause.category = opt.category;
+			whereClause.category = {
+				[Op.like]: `%${opt.category}%`
+			}
 		}
 
 		// Conditionally add searchQuery to the where clause if it's not an empty string
@@ -120,8 +129,18 @@ export default {
 		});
 		//console.log("projects--",projects)
 
-		let list = projects.rows;
+		let list: any = projects.rows;
 		let count = projects.count;
+
+		list = list.map((project: any) => {
+			const categoryIds = project?.category?.split(',').map((id: any) => parseInt(id, 10));
+			const categoryNames = categoryIds?.map((id: any) => categoryMap.get(id))?.filter((name: any) => name !== undefined);
+
+			return {
+				...project.toJSON(),
+				category_names: categoryNames,
+			};
+		});
 
 		return R(res, true, "project listssss", list, {
 			current_page: opt.page,
@@ -622,26 +641,7 @@ export default {
 							attributes: ["email", "user_name", "pro_vat", "pro_user", "prof_pic", "logo"],
 							required: false,
 						},
-						// {
-						// 	model: models.messages,
-						// 	as: "messages",
-						// 	where:{
-						// 		project_id: { [Op.col]: "projects.id" },
-						// 		[Op.or]: [
-						// 			{
-						// 				to_id: { [Op.col]: "projects.bids.user_id" },
-						// 				from_id: {[Op.col]: "projects.creator_id" },
-						// 			},
-						// 			{
-						// 				to_id: {[Op.col]: "projects.creator_id"},
-						// 				from_id: { [Op.col]: "projects.bids.user_id" },
-						// 			},
-						// 		],
-						// 	},
-						// 	limit:2,
-						// 	required: false,
 
-						// },
 					],
 					required: false,
 				},
@@ -692,7 +692,40 @@ export default {
 		}
 
 
-		return R(res, true, "project details", project);
+		// Extract comma-separated category IDs from the project record
+		const categoryIds = project.category
+			? project.category.split(',').map((id: any) => parseInt(id.trim(), 10))
+			: [];
+
+		// Fetch category names from Project_categories
+		const categories = await models.Project_categories.findAll({
+			where: {
+				id: {
+					[Op.in]: categoryIds
+				}
+			}
+		});
+
+		// Create a map of ID to category name
+		const categoryMap = new Map<number, string>();
+		categories.forEach(category => {
+			categoryMap.set(category?.id, category?.category_name);
+		});
+
+		// Replace comma-separated IDs with category names
+		const categoryNames = categoryIds
+			.map((id: any) => categoryMap.get(id))
+			.filter((name : any) => name !== undefined);
+
+		// Include category names in the project object
+		const projectWithCategories = {
+			...project.toJSON(),
+			category_names: categoryNames
+		};
+
+
+
+		return R(res, true, "project details", projectWithCategories);
 	}),
 	askQuestion: asyncWrapper(async (req: UserAuthRequest, res: Response) => {
 		// validation
@@ -5923,9 +5956,41 @@ export default {
 		if (!art) {
 			return R(res, false, "No artwork found!")
 		}
-		console.log("get art response---", art)
+		// Extract comma-separated IDs from the user record
+		const categoryIds = art?.categories
+			? art?.categories?.split(',').map(id => parseInt(id.trim(), 10))
+			: [];
 
-		return R(res, true, "get art", art);
+		// Fetch category names from Project_categories
+		const categories = await models.Project_categories.findAll({
+			where: {
+				id: {
+					[Op.in]: categoryIds
+				}
+			}
+		});
+
+		// Create a map of ID to category name
+		const categoryMap = new Map<number, string>();
+		categories.forEach((category: any) => {
+			categoryMap.set(category.id, category.category_name);
+		});
+
+		// Replace comma-separated IDs with category names
+		const categoryNames = categoryIds
+			.map(id => categoryMap.get(id))
+			.filter(name => name !== undefined);
+
+		// Include category names in the art object
+		const artWithCategories = {
+			...art.toJSON(),
+			programmer: {
+				...art.programmer?.toJSON(),
+				category_names: categoryNames
+			}
+		};
+
+		return R(res, true, "get art", artWithCategories);
 	}),
 
 	get_category_subcategory: asyncWrapper(async (req: UserAuthRequest, res: Response) => {
