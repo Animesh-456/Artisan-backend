@@ -11,6 +11,7 @@ import { Op } from "sequelize";
 import axios from "axios";
 import { sendMail, site_mail_data } from "@helpers/mail";
 
+
 import mail from "@config/mail";
 
 import paypal from "@paypal/checkout-server-sdk"
@@ -34,9 +35,11 @@ import { Cashfree } from "cashfree-pg";
 
 const crypto = require("crypto")
 
-Cashfree.XClientId = "TEST10167206cb646b2c5b786024977f60276101";
-Cashfree.XClientSecret = "cfsk_ma_test_11edc7bec69b08ca96524626c30b84db_283d57aa";
-Cashfree.XEnvironment = Cashfree.Environment.SANDBOX;
+// Cashfree.XClientId = "TEST10167206cb646b2c5b786024977f60276101",
+// 	Cashfree.XClientSecret = "cfsk_ma_test_27727896027d911c54b85a03aa909f2d_248e91f4",
+// 	Cashfree.XEnvironment = Cashfree.Environment.SANDBOX;
+
+import cashfreeCredentials from '@config/cashfreeCredentials';
 
 export default {
 	test: asyncWrapper(async (req: UserAuthRequest, res: Response) => {
@@ -181,7 +184,7 @@ export default {
 
 		const project_id = req?.body?.id
 
-		let proj = await models.projects.findOne({
+		var proj: any = await models.projects.findOne({
 			where: {
 				id: project_id
 			}
@@ -226,41 +229,66 @@ export default {
 
 
 
-
-
-
-
 		try {
 
-			let request: any = {
-				"order_amount": `${String(bid_details?.bid_amount_gbp)}`,
-				"order_currency": "INR",
-				"order_id": await generateOrderId(),
-				"customer_details": {
-					"customer_id": "Animesh",
-					"customer_phone": "9999999999",
-					"customer_name": "Animesh",
-					"customer_email": "webcodder@example.com"
+
+			const response = await axios.post(`${cashfreeCredentials?.cashfree_api_url}/pg/orders`, {
+				customer_details: {
+					customer_id: `${proj?.creator_id}`,
+					customer_email: 'anim29006@gmail.com',
+					customer_phone: '7407934219',
+					customer_name: 'Animesh',
 				},
-			}
+				
+				order_meta: {
+					return_url: `${cashfreeCredentials?.return_url}`,
+					cancel_url: `${cashfreeCredentials?.return_url}`   
+				},
+				order_amount: bid_details?.bid_amount_gbp,
+				order_currency: `${cashfreeCredentials?.order_currency}`,
+			}, {
+				headers: {
+					'accept': 'application/json',
+					'content-type': 'application/json',
+					'x-api-version': `${cashfreeCredentials?.x_api_version}`,
+					'x-client-id': `${cashfreeCredentials?.x_client_id}`,
+					'x-client-secret': `${cashfreeCredentials?.x_client_ecret}`,
+				},
+			});
+			console.log('Order created successfully:', response.data);
 
-			Cashfree.PGCreateOrder("2023-08-01", request).then(response => {
-				console.log(response.data);
-				return R(res, true, "Order Created", { id: response.data });
-				//res.json(response.data);
+			let transaction_details = await models.transactions.create({
+				amount: (bid_details?.bid_amount_gbp),
+				amount_gbp: bid_details.bid_amount || 0,
 
-			}).catch(error => {
-				console.error(error.response.data.message);
-			})
+				type: "Escrow Transfer",
+
+
+				creator_id: req.user?.id,
+				buyer_id: req.user?.id,
+				order_id: response?.data?.order_id,
+
+
+				provider_id: proj?.programmer_id,
+				reciever_id: proj?.programmer_id,
+
+				status: "Pending",
+				country_code: 2,
+				transaction_time: moment().unix(),
+
+				description: "Cashfree",
+				user_type: "customer",
+				project_id: proj?.id,
+
+			});
+			
+			return R(res, true, "Order Created", { id: response.data })
 
 
 		} catch (error) {
 			console.log(error);
-			return R(res, false, "Error Occured while createing order", { error: error });
+			return R(res, false, "Error Occured while creating order. Please retry after sometime!", { error: error });
 		}
-
-
-		//return R(res, true, "Order Created", { id: response.result.id });
 
 	}),
 

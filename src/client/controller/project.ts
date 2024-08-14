@@ -13,6 +13,7 @@ import { float } from "aws-sdk/clients/lightsail";
 import { jsPDF } from "jspdf";
 import mail from "@config/mail";
 import Stripe from "stripe";
+import { verifyCashfree } from "@client/routes/verifyCashfree";
 
 
 // const stripe = new Stripe('sk_test_51P10WjSI5JkjOQYeRJzK1Jf8ZRSwvLKIU63oD7qQKL10vqYWIM2WLUsHUYkiWiY5j5wmPF7FVVwomeICaTUzirQ300yJv1rB05', {
@@ -22,12 +23,13 @@ import Stripe from "stripe";
 
 import { Cashfree } from "cashfree-pg";
 import { Project_categories } from "@model/Project_categories";
-
+import { messages } from "@model/messages";
+// import { verifyCashfree } from "@client/routes/verifyCashfree";
 const crypto = require("crypto")
 
-Cashfree.XClientId = "TEST10167206cb646b2c5b786024977f60276101";
-Cashfree.XClientSecret = "cfsk_ma_test_b809bfd74b8d6f8d8a03a303cd5f38df_5dd46c26";
-Cashfree.XEnvironment = Cashfree.Environment.SANDBOX;
+Cashfree.XClientId = "TEST10167206cb646b2c5b786024977f60276101",
+	Cashfree.XClientSecret = "cfsk_ma_test_27727896027d911c54b85a03aa909f2d_248e91f4",
+	Cashfree.XEnvironment = Cashfree.Environment.SANDBOX;
 
 export default {
 	test: asyncWrapper(async (req: UserAuthRequest, res: Response) => {
@@ -715,7 +717,7 @@ export default {
 		// Replace comma-separated IDs with category names
 		const categoryNames = categoryIds
 			.map((id: any) => categoryMap.get(id))
-			.filter((name : any) => name !== undefined);
+			.filter((name: any) => name !== undefined);
 
 		// Include category names in the project object
 		const projectWithCategories = {
@@ -2183,321 +2185,218 @@ export default {
 
 	after_cashfree: asyncWrapper(async (req: any, res: Response) => {
 
-		console.log("req.body is", req.body)
+
+
 		try {
 
-			let {
-				order_id, project_id
-			} = req.body;
+			console.log("Webhook order id --", req.body?.data?.order?.order_id)
 
-			let verifiedresult = await Cashfree.PGOrderFetchPayments("2023-08-01", order_id)
-			console.log("verifiedresult", verifiedresult)
-			//return R(res, true, "Payment verified!")
+			const paymentDetails = await verifyCashfree(req.body?.data?.order?.order_id)
 
+			console.log("Payment details are:-", paymentDetails.order_status)
 
-
-
-			// Update in DB
+			if (paymentDetails?.order_status === 'PAID') {
+				//update transcations table with orderId and project table with project_id from transactions table
 
 
+				let transactionDetails: any = await models.transactions.findOne({
+					where: {
+						order_id: paymentDetails?.order_id
+					}
+				})
+
+				if (!transactionDetails) return R(res, false, "No transactions found", { message: "No transactions found" });
+
+				let projectDetails: any = await models.projects.findOne({
+					where: {
+						id: transactionDetails?.project_id
+					}
+				})
+
+				if (!projectDetails) return R(res, false, "No project found", { message: "No project found" });
 
 
-			let project = await models.projects.findOne({
-				where: {
-					id: project_id.toString(),
-				},
-				include: [
-					{
-						model: models.project_images,
-						as: "project_images",
-						where: {
-							project_id: { [Op.col]: "projects.id" },
-						},
-						required: false,
-					},
-					{
-						model: models.bids,
-						as: "bids",
-						where: {
-							project_id: { [Op.col]: "projects.id" },
-						},
-						include: [
-							{
-								model: models.users,
-								as: "user",
-								attributes: ["email", "user_name"],
-								required: false,
-							},
-						],
-						required: false,
-					},
-					{
-						model: models.users,
-						as: "creator",
-						attributes: ["email", "user_name", "id"],
-						required: false,
-					},
-					{
-						model: models.users,
-						as: "programmer",
-						attributes: ["email", "user_name", "id"],
-						required: false,
-					},
-					{
-						model: models.prebid_messages,
-						as: "prebid_messages",
-						where: {
-							project_id: { [Op.col]: "projects.id" },
-						},
-						include: [
-							{
-								model: models.users,
-								as: "from",
-								attributes: ["email", "user_name"],
-								required: false,
-							},
-						],
-						required: false,
-					},
-				],
+				transactionDetails.status = "Completed";
+				await transactionDetails?.save();
 
-				attributes: {
-					include: [
-						[
-							db.sequelize.literal(
-								`(SELECT COUNT(*) FROM bids WHERE project_id = projects.id)`,
-							),
-							"bids_count",
-						],
-					],
-				},
-			});
+				projectDetails.project_status = "4";
+				projectDetails.project_fund_date_format = new Date();
+
+				await projectDetails?.save();
 
 
-
-			if (!project) {
-				return R(res, false, "Project not found");
+				console.log("Payment status success", paymentDetails?.order_status)
+				return R(res, true, "Received webhook:", { message: "Received webhook!" });
 			}
 
 
-			// let buyer = await models.users.findOne({
-			// 	where: {
-			// 		id: req.user?.id
-			// 	},
-			// 	attributes: ["user_name", "email"]
-			// })
-			let bid: any = await models.bids.findOne({
-				where: {
-					project_id: project.id,
-					user_id: project.programmer_id
-				},
-			});
+			// Extract payment information
+			const orderId = req.body?.data?.order?.order_id;
+			const paymentStatus = req.body?.data?.payment?.payment_status;
 
-			if (!bid) {
-				return R(res, false, "Invalid	 Bid");
-			}
+			console.log('Payment :', { orderId, paymentStatus });
 
+			//mail endpoint 
 
-			var today = new Date();
+			// 	let supplier = await models.users.findOne({
+			// 		where: {
+			// 			id: project.programmer_id
+			// 		}
+			// 	})
 
-			let transaction_details = await models.transactions.create({
-				amount: (bid?.bid_amount_gbp),
-				amount_gbp: bid.bid_amount || 0,
+			// 	let task_id = 107;
 
-				type: "Escrow Transfer",
+			// 	const api_data_rep: object = {
+			// 		"!project_title": project.project_name,
+			// 		"!supplier_username": supplier?.user_name,
+			// 		"!bid_amount": transaction_details.amount_gbp,
+			// 		"!shipping_date": project.bids[0].bid_days,
+			// 		"!amount": (transaction_details.amount_gbp) * (100 - 15) / 100,
+			// 		"!project_url": `${mail.mailbaseurl}project/${project.project_name}/${project.id}`
 
+			// 	}
 
-				creator_id: req.user?.id,
-				buyer_id: req.user?.id,
+			// 	const mailData = await models.email_templates.findOne({
+			// 		where: {
+			// 			id: task_id,
+			// 			country_code: "en"
+			// 		},
+			// 		attributes: ["title", "mail_subject", "mail_body"],
+			// 	});
 
+			// 	var body = mailData?.mail_body;
+			// 	var title = mailData?.title;
+			// 	var subject = mailData?.mail_subject;
 
-				provider_id: project.programmer_id,
-				reciever_id: project.programmer_id,
+			// 	(Object.keys(api_data_rep) as (keyof typeof api_data_rep)[]).forEach(key => {
+			// 		if (body?.includes(key)) {
+			// 			var re = new RegExp(key, 'g');
+			// 			body = body.replace(re, api_data_rep[key])
+			// 		}
 
-				status: "success",
-				country_code: 2,
-				transaction_time: moment().unix(),
+			// 		if (title?.includes(key)) {
+			// 			var re = new RegExp(key, 'g');
+			// 			title = title.replace(re, api_data_rep[key])
+			// 		}
 
-				description: "Paypal",
-				user_type: "customer",
-				project_id: project.id,
+			// 		if (subject?.includes(key)) {
+			// 			var re = new RegExp(key, 'g');
+			// 			subject = subject.replace(re, api_data_rep[key])
+			// 		}
 
-			});
 
 
-			project.project_status = "4";
-			project.project_fund_date_format = today;
 
-			await project.save();
+			// 	});
 
 
+			// 	(Object.keys(site_mail_data) as (keyof typeof site_mail_data)[]).forEach(key => {
 
 
-			let supplier = await models.users.findOne({
-				where: {
-					id: project.programmer_id
-				}
-			})
+			// 		if (body?.includes(key)) {
 
-			let task_id = 107;
+			// 			var re = new RegExp(key, 'g');
 
-			const api_data_rep: object = {
-				"!project_title": project.project_name,
-				"!supplier_username": supplier?.user_name,
-				"!bid_amount": transaction_details.amount_gbp,
-				"!shipping_date": project.bids[0].bid_days,
-				"!amount": (transaction_details.amount_gbp) * (100 - 15) / 100,
-				"!project_url": `${mail.mailbaseurl}project/${project.project_name}/${project.id}`
+			// 			body = body.replace(re, site_mail_data[key])
+			// 		}
 
-			}
+			// 		if (title?.includes(key)) {
+			// 			var re = new RegExp(key, 'g');
+			// 			title = title.replace(re, site_mail_data[key])
+			// 		}
 
-			const mailData = await models.email_templates.findOne({
-				where: {
-					id: task_id,
-					country_code: "en"
-				},
-				attributes: ["title", "mail_subject", "mail_body"],
-			});
+			// 		if (subject?.includes(key)) {
+			// 			var re = new RegExp(key, 'g');
+			// 			subject = subject.replace(re, site_mail_data[key])
+			// 		}
+			// 	})
 
-			var body = mailData?.mail_body;
-			var title = mailData?.title;
-			var subject = mailData?.mail_subject;
+			// 	sendMail({ to: supplier?.email, subject, body });
 
-			(Object.keys(api_data_rep) as (keyof typeof api_data_rep)[]).forEach(key => {
-				if (body?.includes(key)) {
-					var re = new RegExp(key, 'g');
-					body = body.replace(re, api_data_rep[key])
-				}
+			// 	// notification to supplier
 
-				if (title?.includes(key)) {
-					var re = new RegExp(key, 'g');
-					title = title.replace(re, api_data_rep[key])
-				}
+			// 	//console.log("notif -->",notifs);
 
-				if (subject?.includes(key)) {
-					var re = new RegExp(key, 'g');
-					subject = subject.replace(re, api_data_rep[key])
-				}
+			// 	let user = await models.users.findOne({
+			// 		where: {
+			// 			id: project.creator_id
+			// 		}
+			// 	})
 
+			// 	let task_id_cust = 106;
 
+			// 	const api_data_rep_cus: object = {
+			// 		"!project_title": project.project_name,
+			// 		"!username": user?.user_name,
+			// 		"!bid_amount": transaction_details.amount,
+			// 		"!withdraw_url": `${mail.mailbaseurl}auth/sign-in`,
+			// 		"!amount": transaction_details.amount_gbp,
+			// 		"!supplier_name": supplier?.user_name,
+			// 		"!delvry_date": project.bids[0].bid_days
+			// 	}
 
+			// 	const mailData_cus = await models.email_templates.findOne({
+			// 		where: {
+			// 			id: task_id_cust,
+			// 			country_code: "en"
+			// 		},
+			// 		attributes: ["title", "mail_subject", "mail_body"],
+			// 	});
 
-			});
+			// 	var body = mailData_cus?.mail_body;
+			// 	var title = mailData_cus?.title;
+			// 	var subject = mailData_cus?.mail_subject;
 
+			// 	(Object.keys(api_data_rep_cus) as (keyof typeof api_data_rep_cus)[]).forEach(key => {
+			// 		if (body?.includes(key)) {
+			// 			var re = new RegExp(key, 'g');
+			// 			body = body.replace(re, api_data_rep_cus[key])
+			// 		}
 
-			(Object.keys(site_mail_data) as (keyof typeof site_mail_data)[]).forEach(key => {
+			// 		if (title?.includes(key)) {
+			// 			var re = new RegExp(key, 'g');
+			// 			title = title.replace(re, api_data_rep_cus[key])
+			// 		}
 
+			// 		if (subject?.includes(key)) {
+			// 			var re = new RegExp(key, 'g');
+			// 			subject = subject.replace(re, api_data_rep_cus[key])
+			// 		}
 
-				if (body?.includes(key)) {
 
-					var re = new RegExp(key, 'g');
 
-					body = body.replace(re, site_mail_data[key])
-				}
 
-				if (title?.includes(key)) {
-					var re = new RegExp(key, 'g');
-					title = title.replace(re, site_mail_data[key])
-				}
+			// 	});
 
-				if (subject?.includes(key)) {
-					var re = new RegExp(key, 'g');
-					subject = subject.replace(re, site_mail_data[key])
-				}
-			})
 
-			sendMail({ to: supplier?.email, subject, body });
+			// 	(Object.keys(site_mail_data) as (keyof typeof site_mail_data)[]).forEach(key => {
 
-			// notification to supplier
 
-			//console.log("notif -->",notifs);
+			// 		if (body?.includes(key)) {
 
-			let user = await models.users.findOne({
-				where: {
-					id: project.creator_id
-				}
-			})
+			// 			var re = new RegExp(key, 'g');
 
-			let task_id_cust = 106;
+			// 			body = body.replace(re, site_mail_data[key])
+			// 		}
 
-			const api_data_rep_cus: object = {
-				"!project_title": project.project_name,
-				"!username": user?.user_name,
-				"!bid_amount": transaction_details.amount,
-				"!withdraw_url": `${mail.mailbaseurl}auth/sign-in`,
-				"!amount": transaction_details.amount_gbp,
-				"!supplier_name": supplier?.user_name,
-				"!delvry_date": project.bids[0].bid_days
-			}
+			// 		if (title?.includes(key)) {
+			// 			var re = new RegExp(key, 'g');
+			// 			title = title.replace(re, site_mail_data[key])
+			// 		}
 
-			const mailData_cus = await models.email_templates.findOne({
-				where: {
-					id: task_id_cust,
-					country_code: "en"
-				},
-				attributes: ["title", "mail_subject", "mail_body"],
-			});
+			// 		if (subject?.includes(key)) {
+			// 			var re = new RegExp(key, 'g');
+			// 			subject = subject.replace(re, site_mail_data[key])
+			// 		}
+			// 	})
 
-			var body = mailData_cus?.mail_body;
-			var title = mailData_cus?.title;
-			var subject = mailData_cus?.mail_subject;
+			// 	sendMail({ to: user?.email, subject, body });
+			return R(res, false, "Payment not done", { message: "Payment not done" });
 
-			(Object.keys(api_data_rep_cus) as (keyof typeof api_data_rep_cus)[]).forEach(key => {
-				if (body?.includes(key)) {
-					var re = new RegExp(key, 'g');
-					body = body.replace(re, api_data_rep_cus[key])
-				}
 
-				if (title?.includes(key)) {
-					var re = new RegExp(key, 'g');
-					title = title.replace(re, api_data_rep_cus[key])
-				}
-
-				if (subject?.includes(key)) {
-					var re = new RegExp(key, 'g');
-					subject = subject.replace(re, api_data_rep_cus[key])
-				}
-
-
-
-
-			});
-
-
-			(Object.keys(site_mail_data) as (keyof typeof site_mail_data)[]).forEach(key => {
-
-
-				if (body?.includes(key)) {
-
-					var re = new RegExp(key, 'g');
-
-					body = body.replace(re, site_mail_data[key])
-				}
-
-				if (title?.includes(key)) {
-					var re = new RegExp(key, 'g');
-					title = title.replace(re, site_mail_data[key])
-				}
-
-				if (subject?.includes(key)) {
-					var re = new RegExp(key, 'g');
-					subject = subject.replace(re, site_mail_data[key])
-				}
-			})
-
-			sendMail({ to: user?.email, subject, body });
-
-
-
-			return R(res, true, "Payment is done ", { project });
-
-
-
-
-
-		} catch (error) {
-			console.log(error)
-			return R(res, false, "Not verified!", { error: error });
+		} catch (err) {
+			console.error('Error processing webhook:', err);
+			return R(res, false, "Error processing webhook", { message: "Error processing webhook" });
 		}
 
 
