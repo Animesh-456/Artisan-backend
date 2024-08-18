@@ -1,6 +1,6 @@
 export default {
     cashfree_api_url: 'https://sandbox.cashfree.com',
-    return_url: 'https://aartstudio.in',
+    return_url: 'http://localhost:3000',
     cancel_url: 'https://aartstudio.in/artworklisting',
     order_currency: 'INR',
     x_client_id: 'TEST10167206cb646b2c5b786024977f60276101',

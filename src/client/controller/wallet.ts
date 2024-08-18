@@ -231,6 +231,8 @@ export default {
 
 		try {
 
+			const order_id = await generateOrderId()
+
 
 			const response = await axios.post(`${cashfreeCredentials?.cashfree_api_url}/pg/orders`, {
 				customer_details: {
@@ -241,9 +243,10 @@ export default {
 				},
 				
 				order_meta: {
-					return_url: `${cashfreeCredentials?.return_url}`,
+					return_url: `${cashfreeCredentials?.return_url}/account/AfterPaypalView?order_id=${order_id}`,
 					cancel_url: `${cashfreeCredentials?.return_url}`   
 				},
+				order_id: order_id,
 				order_amount: bid_details?.bid_amount_gbp,
 				order_currency: `${cashfreeCredentials?.order_currency}`,
 			}, {
