@@ -143,5 +143,6 @@ router.get("/get-portfolio-art", cn.get_portfolio_art);
 router.get("/get-category-subcategory", cn.get_category_subcategory);
 router.post("/add-art-work", cn.add_art_work);
 router.get("/get-art", cn.get_art);
+router.post("/kyc", cn.kyc);
 
 export default router;

@@ -5933,4 +5933,61 @@ export default {
 	}),
 
 
+	kyc: asyncWrapper(async (req: UserAuthRequest, res: Response) => {
+
+		
+		let data = await Validate(
+			res,
+			["user_id", "pan", "gst", "company_address" , "company_state", "city", "zip", "bank_account", "ifsc", "bank_name", "bank_address",
+				 "bank_state", "bank_zip", 
+			],
+			schema.project.add_art,
+			req.body,
+			{},
+		);
+		const body= data;
+
+		try{
+
+			if (!req.files) {
+				return R(res, false, "No file uploaded!");
+			}
+			
+			let files = await uploadFile(req, res);
+			let concatenatedData = files.join(',');
+			const obj:any = {
+				user_id: body.user_id,
+				pan: body.pan,
+				gst: body.gst,
+				company_address: body.company_address,
+				company_address1: body.company_address1 || "",
+				company_state: body.company_state,
+				city: body.city,
+				zip: body.zip,
+				bank_account: body.bank_account,
+				ifsc: body.ifsc,
+				bank_name: body.bank_name,
+				bank_address: body.bank_address,
+				bank_address1: body.bank_address1 || "",
+				bank_state: body.bank_state,
+				bank_zip: body.bank_zip,
+				attachments: concatenatedData,
+				upload: new Date(),
+				admin_approve: 0,
+
+
+
+			}
+			await models.kyc.create(obj)
+			return R(res, true, "kyc added", { messages: "kyc added"})
+
+		}
+		catch(error){
+			return R(res, false, "error occured while creating kyc", error)
+
+
+		}
+		
+
+	}),
 };

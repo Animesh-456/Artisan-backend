@@ -187,6 +187,10 @@ import { users as _users } from "./users";
 import type { usersAttributes, usersCreationAttributes } from "./users";
 import { Project_categories as _Project_categories } from "./Project_categories";
 import type { Project_categoriesAttributes, Project_categoriesCreationAttributes } from "./Project_categories";
+import { kyc as _kyc, kyc } from "./kyc";
+import type { kycAttributes, kycCreationAttributes } from "./kyc";
+
+
 
 export {
   _admin_apprv_imgs as admin_apprv_imgs,
@@ -283,6 +287,9 @@ export {
   _user_relation as user_relation,
   _users as users,
   _Project_categories as Project_categories,
+  _kyc as kyc,
+  
+
 };
 
 export type {
@@ -474,6 +481,8 @@ export type {
   usersCreationAttributes,
   Project_categoriesAttributes,
   Project_categoriesCreationAttributes,
+  kycAttributes,
+  kycCreationAttributes
 };
 
 export function initModels(sequelize: Sequelize) {
@@ -531,6 +540,7 @@ export function initModels(sequelize: Sequelize) {
   const payments = _payments.initModel(sequelize);
   const popular_search = _popular_search.initModel(sequelize);
   const portfolio = _portfolio.initModel(sequelize);
+
   const prebid_message_relation = _prebid_message_relation.initModel(sequelize);
   const prebid_messages = _prebid_messages.initModel(sequelize);
   const project_cases = _project_cases.initModel(sequelize);
@@ -571,6 +581,7 @@ export function initModels(sequelize: Sequelize) {
   const user_relation = _user_relation.initModel(sequelize);
   const users = _users.initModel(sequelize);
   const Project_categories = _Project_categories.initModel(sequelize);
+  const kyc = _kyc.initModel(sequelize);
 
 
   users.belongsTo(country, { as: "country_code_country", foreignKey: "country_code" });
@@ -623,6 +634,8 @@ export function initModels(sequelize: Sequelize) {
   Project_categories.belongsTo(Project_categories, { as: 'subcategories', foreignKey: 'parent_id' });
   Project_categories.hasMany(Project_categories, { as: 'parent', foreignKey: 'parent_id' });
 
+  kyc.belongsTo(users, { as: "programmer", foreignKey: "user_id" });
+  users.hasMany(kyc, { as: "programmer_kyc", foreignKey: "user_id" });
 
   return {
     admin_apprv_imgs: admin_apprv_imgs,
@@ -719,5 +732,6 @@ export function initModels(sequelize: Sequelize) {
     user_list: user_list,
     user_relation: user_relation,
     users: users,
+    kyc: kyc
   };
 }
