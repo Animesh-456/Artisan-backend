@@ -8,5 +8,6 @@ export default {
   	update_profile_picture: process.cwd() + "/public/logos/",
  	prot_pic: process.cwd() + "/public/portfolios/",
 	invoice: process.cwd() + "/public/pdf_generation/",
+	kyc: process.cwd() + "/public/kyc/",
 	
 };

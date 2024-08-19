@@ -7,12 +7,13 @@ export interface kycAttributes {
     user_id: number;
     pan: string;
     gst: string;
+    company_name: string;
     company_address: string;
     company_address1: string;
     company_state: string;
     city: string;
     zip: number;
-    bank_acount: string;
+    bank_account: string;
     ifsc: string;
     bank_name: string;
     bank_address: string;
@@ -31,26 +32,27 @@ export type kycOptionalAttributes = "id";
 export type kycCreationAttributes = Optional<kycAttributes, kycOptionalAttributes>;
 
 export class kyc extends Model<kycAttributes, kycCreationAttributes> implements kycAttributes {
-        id!: number;
-        user_id!: number;
-        pan!: string;
-        gst!: string;
-        company_address!: string;
-        company_address1!: string;
-        company_state!: string;
-        city!: string;
-        zip!: number;
-        bank_acount!: string;
-        ifsc!: string;
-        bank_name!: string;
-        bank_address!: string;
-        bank_address1!: string;
-        bank_state!: string;
-        bank_zip!: number;
-        bank_city!: string;
-        attachments!: string;
-        upload!: Date;
-        admin_approve!: number
+    id!: number;
+    user_id!: number;
+    pan!: string;
+    gst!: string;
+    company_name!: string;
+    company_address!: string;
+    company_address1!: string;
+    company_state!: string;
+    city!: string;
+    zip!: number;
+    bank_account!: string;
+    ifsc!: string;
+    bank_name!: string;
+    bank_address!: string;
+    bank_address1!: string;
+    bank_state!: string;
+    bank_zip!: number;
+    bank_city!: string;
+    attachments!: string;
+    upload!: Date;
+    admin_approve!: number
 
     static initModel(sequelize: Sequelize.Sequelize): typeof kyc {
         return sequelize.define('kyc', {
@@ -76,6 +78,10 @@ export class kyc extends Model<kycAttributes, kycCreationAttributes> implements 
                 type: DataTypes.STRING(200),
                 allowNull: false
             },
+            company_name: {
+                type: DataTypes.STRING(200),
+                allowNull: false
+            },
             company_address: {
                 type: DataTypes.TEXT,
                 allowNull: false
@@ -96,7 +102,7 @@ export class kyc extends Model<kycAttributes, kycCreationAttributes> implements 
                 type: DataTypes.INTEGER,
                 allowNull: false
             },
-            bank_acount: {
+            bank_account: {
                 type: DataTypes.STRING(255),
                 allowNull: false
             },
@@ -162,6 +168,6 @@ export class kyc extends Model<kycAttributes, kycCreationAttributes> implements 
             ]
         }) as typeof kyc;
     }
-    
+
 }
 

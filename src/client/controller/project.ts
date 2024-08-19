@@ -3,7 +3,7 @@ import { asyncWrapper, R } from "@helpers/response-helpers";
 import { UserAuthRequest, UserAuthBufferRequest } from "@middleware/auth";
 import models from "@model/index";
 import db from "@db/mysql";
-import { uploadFile, uploadMachiningFile, uploadOneFile, shippingmachiningfile, uploadsendmsgFile, uploadInvoice, uploadadditionalFile, deleteadditionalFile, uploadProtpic, deleteprofilepic, deleteportfoliopic, uploadbidfile } from "@helpers/upload";
+import { uploadFile, uploadMachiningFile, uploadOneFile, shippingmachiningfile, uploadsendmsgFile, uploadInvoice, uploadadditionalFile, deleteadditionalFile, uploadProtpic, deleteprofilepic, deleteportfoliopic, uploadbidfile, uploadkyc } from "@helpers/upload";
 import { Pick, Validate } from "validation/utils";
 import schema from "validation/schema";
 import moment from "moment";
@@ -5935,30 +5935,32 @@ export default {
 
 	kyc: asyncWrapper(async (req: UserAuthRequest, res: Response) => {
 
-		
+
 		let data = await Validate(
 			res,
-			["user_id", "pan", "gst", "company_address" , "company_state", "city", "zip", "bank_account", "ifsc", "bank_name", "bank_address",
-				 "bank_state", "bank_zip", 
+			["user_id", "pan", "gst", "company_name", "company_address", "company_address1", "company_state", "city", "zip", "bank_account", "ifsc", "bank_name", "bank_address", "bank_address1",
+				"bank_state", "bank_city", "bank_zip",
 			],
-			schema.project.add_art,
+			schema.project.kyc,
 			req.body,
 			{},
 		);
-		const body= data;
+		const body = data;
+		let currentDate = moment().format('YYYY-MM-DD HH:mm:ss');
 
-		try{
+		try {
 
 			if (!req.files) {
 				return R(res, false, "No file uploaded!");
 			}
-			
-			let files = await uploadFile(req, res);
+
+			let files = await uploadkyc(req, res);
 			let concatenatedData = files.join(',');
-			const obj:any = {
+			const obj: any = {
 				user_id: body.user_id,
 				pan: body.pan,
 				gst: body.gst,
+				company_name: body.company_name,
 				company_address: body.company_address,
 				company_address1: body.company_address1 || "",
 				company_state: body.company_state,
@@ -5966,28 +5968,25 @@ export default {
 				zip: body.zip,
 				bank_account: body.bank_account,
 				ifsc: body.ifsc,
+				bank_city: body.bank_city,
 				bank_name: body.bank_name,
 				bank_address: body.bank_address,
 				bank_address1: body.bank_address1 || "",
 				bank_state: body.bank_state,
 				bank_zip: body.bank_zip,
 				attachments: concatenatedData,
-				upload: new Date(),
+				upload: String(currentDate),
 				admin_approve: 0,
-
-
-
 			}
+
 			await models.kyc.create(obj)
-			return R(res, true, "kyc added", { messages: "kyc added"})
+			return R(res, true, "kyc added", { messages: "kyc added" })
 
 		}
-		catch(error){
+		catch (error) {
 			return R(res, false, "error occured while creating kyc", error)
-
-
 		}
-		
+
 
 	}),
 };
