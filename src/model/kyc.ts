@@ -23,7 +23,8 @@ export interface kycAttributes {
     bank_city: string;
     attachments: string;
     upload: Date;
-    admin_approve: number
+    admin_approve: number;
+    aadhar_number: number;
 }
 
 export type kycPk = "id";
@@ -52,7 +53,8 @@ export class kyc extends Model<kycAttributes, kycCreationAttributes> implements 
     bank_city!: string;
     attachments!: string;
     upload!: Date;
-    admin_approve!: number
+    admin_approve!: number;
+    aadhar_number!: number;
 
     static initModel(sequelize: Sequelize.Sequelize): typeof kyc {
         return sequelize.define('kyc', {
@@ -145,7 +147,11 @@ export class kyc extends Model<kycAttributes, kycCreationAttributes> implements 
             admin_approve: {
                 type: DataTypes.INTEGER,
                 allowNull: false
-            }
+            },
+            aadhar_number: {
+                type: DataTypes.INTEGER,
+                allowNull: false,
+            },
         }, {
             tableName: 'kyc',
             timestamps: false,
