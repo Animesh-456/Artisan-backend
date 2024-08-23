@@ -712,16 +712,17 @@ export default {
 
 
 		let deladd = await models.delivery_contacts.findOne({
-
 			where: {
 				project_id: data?.project_id,
 			}
 		})
+
 		if (!deladd) {
 			let newAddress = await models.delivery_contacts.create(data);
 			console.log("address gen----->>", newAddress);
 			return R(res, true, "Address saved");
 		}
+		
 		else {
 			await deladd?.update({
 				name: data?.name,

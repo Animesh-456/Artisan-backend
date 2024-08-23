@@ -629,30 +629,19 @@ export const uploadkyc = async (req: UserAuthRequest, res: Response) => {
 			const file = image;
 			let filename = file?.name;
 			let index = i + 1;
+
 			try {
 				const extensionName = path?.extname(filename ?? "");
 
-				// const allowedExtension = [".png", ".jpg", ".jpeg"];
+				fs.mkdirSync(`${publicPath}`, { recursive: true });
 
-				// if (!allowedExtension.includes(extensionName)) {
-				// 	return res.json({ message: "Invalid Image", status: false });
-				// }
-
-				const month = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-
-				const today = new Date();
-				const _path = `${today.getUTCFullYear()}/${month[today.getMonth()]}/`
-
-				fs.mkdirSync(`${publicPath}/${_path}`, { recursive: true });
-
-
-				if (req?.user?.id) {
+				if (req?.body.user_id) {
 					filename = filename.substring(0, 3) + Date.now()
 						.toString(36)
 						.toUpperCase()
 						.split("")
 						.reverse()
-						.join("") + req.user?.id + `${index}` + extensionName;
+						.join("") + req.body.user_id + `${index}` + extensionName;
 				} else {
 					filename = filename.substring(0, 3) + Date.now()
 						.toString(36)
@@ -664,7 +653,7 @@ export const uploadkyc = async (req: UserAuthRequest, res: Response) => {
 
 
 
-				file.mv(`${publicPath}${_path}${filename}`);
+				file.mv(`${publicPath}${filename}`);
 			} catch (e) {
 				return R(res, false, "File upload failed");
 			}

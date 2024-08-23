@@ -5833,7 +5833,6 @@ export default {
 
 	get_portfolio_art: asyncWrapper(async (req: UserAuthRequest, res: Response) => {
 		const id = req.query.id;
-		console.log("get art userId---", id)
 		const art = await models.portfolio.findOne({
 			where: {
 				id: id?.toString()
@@ -5936,27 +5935,43 @@ export default {
 	kyc: asyncWrapper(async (req: UserAuthRequest, res: Response) => {
 
 		const body = req.body;
+		if (!body?.user_id) return R(res, false, "user_id is required")
 		let currentDate = moment().format('YYYY-MM-DD HH:mm:ss');
 
-		console.log("called", body.user_id)
+		console.log("called", body)
 
-		var kycDetails = await models.kyc.findOne({
+		const kycDetails = await models.kyc.findOne({
 			where: {
-				user_id: body.user_id.toString()
-			}
-		})
+				user_id: body.user_id.toString(),
+			},
+		});
+
+		// Handle existing files
+		let existingFiles = body.existingFiles ? body.existingFiles.split(',').join(',') : "";
+
+		// Handle new file uploads
+		let concatenatedData = "";
+		if (req.files) {
+			const files = await uploadkyc(req, res); // Ensure uploadkyc returns an array of filenames
+			concatenatedData = files.join(',');
+		}
 
 		try {
-
 			if (kycDetails) {
-				await kycDetails.update(body)
-				return R(res, true, "kyc updated", { messages: "kyc updated" })
-			} else {
-				if (req.files) {
-					var files = await uploadkyc(req, res);
-					var concatenatedData = files.join(',');
-				}
+				// Properly concatenate attachments
+				let attachments = [existingFiles, concatenatedData]
+					.filter(Boolean) // Remove empty strings
+					.join(',');
 
+				// Update the existing KYC details
+				await kycDetails.update({
+					...body,
+					attachments, // Set the concatenated attachments
+				});
+
+				return R(res, true, "KYC updated", { messages: "KYC updated" });
+			} else {
+				// Create new KYC record
 				const obj: any = {
 					user_id: body.user_id,
 					pan: body.pan || "",
@@ -5979,19 +5994,16 @@ export default {
 					attachments: concatenatedData || "",
 					upload: String(currentDate),
 					admin_approve: 0,
-				}
+				};
 
-				await models.kyc.create(obj)
-				return R(res, true, "kyc added", { messages: "kyc added" })
+				await models.kyc.create(obj);
+				return R(res, true, "KYC added", { messages: "KYC added" });
 			}
-
+		} catch (error) {
+			return R(res, false, "Error occurred while creating/updating KYC", error);
 		}
-		catch (error) {
-			return R(res, false, "error occured while creating kyc", error)
-		}
-
-
 	}),
+
 
 	get_kyc: asyncWrapper(async (req: UserAuthRequest, res: Response) => {
 		try {
