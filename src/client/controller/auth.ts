@@ -972,7 +972,7 @@ export default {
 				buyer_id: 0,
 				provider_id: user?.id,
 				transaction_time: moment().unix(),
-				amount: euro_amt,
+				amount: amt,
 				amount_gbp: amt,
 				status: "Pending",
 				description: "Withdraw Amount From Paypal",
