@@ -243,7 +243,7 @@ export default {
 				},
 				
 				order_meta: {
-					return_url: `${cashfreeCredentials?.return_url}/account/AfterPaypalView?order_id=${order_id}`,
+					return_url: `${cashfreeCredentials?.return_url}/account/AfterPaypalView/${order_id}`,
 					cancel_url: `${cashfreeCredentials?.return_url}`   
 				},
 				order_id: order_id,
