@@ -3941,11 +3941,12 @@ export default {
 			limit: parseInt(req.query.limit?.toString() || "10"),
 
 		};
-		let reviews = await models.reviews.findAndCountAll({
+		let reviews = await models.reviews.findAll({
 			where: {
 				rating: {
-					[Op.gt]: 4
-				}
+					[Op.gte]: 4
+				}, 
+				country_code: 2
 			},
 			include: [
 				{
@@ -3963,7 +3964,8 @@ export default {
 					where: {
 						id: { [Op.col]: "project_id" },
 						country_code: 2,
-					}
+					},
+					required: false,
 				},
 
 				{
@@ -3980,22 +3982,18 @@ export default {
 			],
 			order: [["review_post_date", "DESC"]],
 			limit: 10,
-			offset: 10,
+			//offset: 10,
 		});
 
 		console.log("allreviews", reviews)
 		const obj: any = {
 			hrsdiff: ""
 		}
-		let list = reviews.rows;
-		let count = reviews.count;
+		// let list = reviews.rows;
+		// let count = reviews.count;
 
 		//console.log("reviews from backend:-", reviews, obj)
-		return R(res, true, "All reviews", list, {
-			current_page: opt.page,
-			total_count: count,
-			total_pages: Math.floor(count / opt.limit),
-		});
+		return R(res, true, "All reviews", reviews);
 	}),
 
 
