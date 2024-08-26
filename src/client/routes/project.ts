@@ -145,5 +145,6 @@ router.post("/add-art-work", cn.add_art_work);
 router.get("/get-art", cn.get_art);
 router.post("/kyc", cn.kyc);
 router.get("/get-kyc", cn.get_kyc);
+router.get("/get-commision-rate", cn.get_commision_rate);
 
 export default router;

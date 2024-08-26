@@ -722,7 +722,7 @@ export default {
 			console.log("address gen----->>", newAddress);
 			return R(res, true, "Address saved");
 		}
-		
+
 		else {
 			await deladd?.update({
 				name: data?.name,
@@ -937,18 +937,12 @@ export default {
 		const amt = req.body.val;
 		const paypal_email = req.body.paypal_email ? req.body.paypal_email : "";
 
-		console.log("The amount from frontend is :-", amt);
-
-		let gbpRate: any = await db.sequelize.query('SELECT rate_ratio FROM euro_to_gbp LIMIT 1');
-
-		console.log('GBP Rate:', gbpRate);
-
-		let euro_amt = amt / gbpRate[0][0].rate_ratio;
+		let euro_amt = amt;
 
 		const amountWithdraw = balanceData.amount_gbp - req.body.balance;
 
 		balanceData.amount_gbp = req.body.balance
-		balanceData.amount = 0.8 * req.body.balance
+		balanceData.amount = req.body.balance
 
 
 		//await balanceData.save();
@@ -960,11 +954,6 @@ export default {
 
 		if (req.body.method == "paypal") {
 
-
-
-
-
-			let amount_withdrawn = 2;
 
 			let data22: any = {
 				type: "Withdraw",
@@ -1071,10 +1060,6 @@ export default {
 
 		}
 		else {
-
-
-
-			let amount_withdrawn = 2
 
 			let data23: any = {
 				type: "Withdraw",

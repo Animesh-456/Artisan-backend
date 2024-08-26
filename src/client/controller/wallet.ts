@@ -241,10 +241,10 @@ export default {
 					customer_phone: '7407934219',
 					customer_name: 'Animesh',
 				},
-				
+
 				order_meta: {
 					return_url: `${cashfreeCredentials?.return_url}/account/AfterPaypalView/${order_id}`,
-					cancel_url: `${cashfreeCredentials?.return_url}`   
+					cancel_url: `${cashfreeCredentials?.return_url}`
 				},
 				order_id: order_id,
 				order_amount: bid_details?.bid_amount_gbp,
@@ -284,7 +284,7 @@ export default {
 				project_id: proj?.id,
 
 			});
-			
+
 			return R(res, true, "Order Created", { id: response.data })
 
 
@@ -346,6 +346,12 @@ export default {
 			}
 		})
 
+		let gbpRate: any = await models.commission_rate.findOne({
+			where: {
+				commission_id: 1
+			},
+			attributes: ["rate"]
+		})
 
 		let machinist_wallet = await models.user_balance.findOne({
 			where: {
@@ -362,8 +368,8 @@ export default {
 		}
 
 		machinist_wallet.increment({
-			amount: (bid.bid_amount_gbp) * (100 - 15) / 100,
-			amount_gbp: (bid.bid_amount_gbp) * (100 - 15) / 100,
+			amount: (bid.bid_amount_gbp) * (100 - gbpRate?.rate) / 100,
+			amount_gbp: (bid.bid_amount_gbp) * (100 - gbpRate?.rate) / 100,
 		});
 		var today = new Date();
 

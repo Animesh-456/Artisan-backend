@@ -4101,6 +4101,11 @@ export default {
 
 		};
 		let reviews = await models.reviews.findAndCountAll({
+			where: {
+				rating: {
+					[Op.gt]: 4
+				}
+			},
 			include: [
 				{
 					model: models.users,
@@ -4133,8 +4138,8 @@ export default {
 
 			],
 			order: [["review_post_date", "DESC"]],
-			limit: opt.limit,
-			offset: opt.page * opt.limit,
+			limit: 10,
+			offset: 10,
 		});
 		const obj: any = {
 			hrsdiff: ""
@@ -6011,6 +6016,22 @@ export default {
 				where: {
 					user_id: req.query.id?.toString()
 				}
+			})
+			return R(res, true, "kyc details", details)
+		} catch (error) {
+			console.error('Error fetching categories with subcategories:', error);
+			return R(res, false, "no kyc details found")
+		}
+	}),
+
+
+	get_commision_rate: asyncWrapper(async (req: UserAuthRequest, res: Response) => {
+		try {
+			const details = await models.commission_rate.findOne({
+				where: {
+					commission_id: 1
+				},
+				attributes: ["rate"]
 			})
 			return R(res, true, "kyc details", details)
 		} catch (error) {
