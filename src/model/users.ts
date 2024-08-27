@@ -35,7 +35,7 @@ export interface usersAttributes {
   account?: string;
   user_status: number;
   activation_key?: string;
-  zcode?: string;
+  zcode?: string; 
   Squestion?: string;
   answer?: string;
   state?: string;
@@ -74,12 +74,13 @@ export interface usersAttributes {
   show_modal?: number;
   createdAt?: Date;
   updatedAt?: Date;
-  category?:string;
+  category?: string;
+  mobile_number?: number;
 }
 
 export type usersPk = "id";
 export type usersId = users[usersPk];
-export type usersOptionalAttributes = "id" | "refid" | "user_name" | "address1" | "address2" | "description" | "company_name" | "company_number" | "password" | "paypal_email" | "profile_desc" | "service_desc" | "voter" | "prof_pic" | "prot_pic" | "pdf_file" | "account" | "user_status" | "activation_key" | "zcode" | "Squestion" | "answer" | "state" | "city" | "country_symbol" | "project_notify" | "bid_notify" | "message_notify" | "rate" | "logo" | "created" | "last_activity" | "user_rating" | "num_reviews" | "rating_hold" | "tot_rating" | "suspend_status" | "ban_status" | "admin_status" | "admin_status_uk" | "admin_status_it" | "job_fr" | "job_uk" | "job_it" | "choice" | "supLogin" | "lang" | "pro_user" | "pro_vat" | "siren" | "mailchimp_id" | "nxtduedate" | "entrepreneur" | "bid_status" | "last_seen" | "show_modal" | "createdAt" | "updatedAt" | "category";
+export type usersOptionalAttributes = "id" | "refid" | "user_name" | "address1" | "address2" | "description" | "company_name" | "company_number" | "password" | "paypal_email" | "profile_desc" | "service_desc" | "voter" | "prof_pic" | "prot_pic" | "pdf_file" | "account" | "user_status" | "activation_key" | "zcode" | "Squestion" | "answer" | "state" | "city" | "country_symbol" | "project_notify" | "bid_notify" | "message_notify" | "rate" | "logo" | "created" | "last_activity" | "user_rating" | "num_reviews" | "rating_hold" | "tot_rating" | "suspend_status" | "ban_status" | "admin_status" | "admin_status_uk" | "admin_status_it" | "job_fr" | "job_uk" | "job_it" | "choice" | "supLogin" | "lang" | "pro_user" | "pro_vat" | "siren" | "mailchimp_id" | "nxtduedate" | "entrepreneur" | "bid_status" | "last_seen" | "show_modal" | "createdAt" | "updatedAt" | "category" | "mobile_number";
 export type usersCreationAttributes = Optional<usersAttributes, usersOptionalAttributes>;
 
 export class users extends Model<usersAttributes, usersCreationAttributes> implements usersAttributes {
@@ -146,7 +147,8 @@ export class users extends Model<usersAttributes, usersCreationAttributes> imple
   show_modal?: number;
   createdAt?: Date;
   updatedAt?: Date;
-  category?:string;
+  category?: string;
+  mobile_number?: number;
 
   // users belongsTo country via country_code
   country_code_country!: country;
@@ -559,10 +561,14 @@ export class users extends Model<usersAttributes, usersCreationAttributes> imple
         type: DataTypes.TINYINT,
         allowNull: true
       },
-      category:{
+      category: {
         type: DataTypes.STRING,
         allowNull: true
-      }
+      },
+      mobile_number: {
+        type: DataTypes.NUMBER,
+        allowNull: true
+      },
     }, {
       tableName: 'users',
       timestamps: true,

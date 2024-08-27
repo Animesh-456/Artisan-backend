@@ -73,6 +73,8 @@ export default {
 
 			//machinist validation
 
+			console.log("req.body for customer", req?.body?.mobile_number)
+
 
 			const schema = Joi.object({
 				account: Joi.string().required(),
@@ -91,6 +93,7 @@ export default {
 				company_name: Joi.required(),
 				pro_user: Joi.required(),
 				show_modal: Joi.required(),
+				mobile_number: Joi.number().required()
 			})
 				.unknown(true)
 				.validate(req.body);
@@ -136,10 +139,13 @@ export default {
 
 
 			data.password = hashedPassword;
+			data.mobile_number = req?.body?.mobile_number;
 
 			objectToBeDeleted.forEach((f) => delete data[f]);
 
 			let user = await models.users.create(data);
+
+			console.log("User after registration", user);
 
 			const token = jwt.sign({ id: user.id }, env.secret);
 
@@ -244,6 +250,7 @@ export default {
 				Squestion: Joi.string().required(),
 				answer: Joi.string().required(),
 				category: Joi.string().required(),
+				mobile_number: Joi.number().required()
 			})
 				.unknown(true)
 				.validate(req.body);
@@ -275,7 +282,7 @@ export default {
 
 			data["role_id"] = 2;
 			data["created"] = moment().unix();
-			data["country_code"] = 74;
+			data["country_code"] = 2;
 			const hash = crypto.createHash('md5');
 			hash.update(data?.password);
 			const hashedPassword = hash.digest('hex');
