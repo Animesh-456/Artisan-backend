@@ -2,15 +2,19 @@ import mail from "@config/mail";
 import { any, object } from "joi";
 import nodemailer from "nodemailer";
 
+import dotenv from "dotenv";
+
+dotenv.config();
+
 export async function sendMail(
 	data: any
 ) {
 	const { to, html, body, subject, isAsync, attachment } = data;
 	const transporter = nodemailer.createTransport({
-		host: 'machining-4u.co.uk',
+		host: String(process.env.MAIL_HOSTNAME),
 		port: 465,
 		secure: true,
-		//	service: 'gmail',
+		service: String(process.env.SERVICE),
 		auth: {
 			user: mail.mailfrom,
 			pass: mail.mailuserpwd,
@@ -27,25 +31,23 @@ export async function sendMail(
 
 	};
 
-	// if (isAsync) {
-	// 	await transporter.sendMail(mailOption, function (error, info) {
-	// 		if (error) {
-	// 			console.log(error);
-	// 		} else {
-	// 			console.log("Email sent for verification: " + info.response);
-	// 		}
-	// 	});
-	// } else {
-	// 	return transporter.sendMail(mailOption);
-	// }
+	if (isAsync) {
+		await transporter.sendMail(mailOption, function (error, info) {
+			if (error) {
+				console.log(error);
+			} else {
+				console.log("Email sent for verification: " + info.response);
+			}
+		});
+	} else {
+		return transporter.sendMail(mailOption);
+	}
 	return
 }
 
 export const site_mail_data = {
-	"!site_name": "machining-4u.co.uk",
-	"!site_url": "www.machining-4u.co.uk",
-	"!contact_url": "admin@machining.co.uk",
-	"!site_title": "Machining",
-
-
+	"!site_name": String(process.env.SITE_NAME),
+	"!site_url": String(process.env.SITE_URL),
+	"!contact_url": String(process.env.CONTACT_URL),
+	"!site_title": String(process.env.SITE_TITLE),
 }

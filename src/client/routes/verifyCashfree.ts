@@ -1,13 +1,14 @@
 import axios from "axios";
+import cashfreeCredentials from "@config/cashfreeCredentials";
 
 export async function verifyCashfree(orderId: string) {
     try {
-        const response = await axios.get(`https://sandbox.cashfree.com/pg/orders/${orderId}`, {
+        const response = await axios.get(`${cashfreeCredentials.cashfree_api_url}/pg/orders/${orderId}`, {
             headers: {
                 'accept': 'application/json',
-                'x-api-version': '2023-08-01',
-                'x-client-id': 'TEST10167206cb646b2c5b786024977f60276101',
-                'x-client-secret': 'cfsk_ma_test_27727896027d911c54b85a03aa909f2d_248e91f4',
+                'x-api-version': `${cashfreeCredentials?.x_api_version}`,
+                'x-client-id': `${cashfreeCredentials?.x_client_id}`,
+                'x-client-secret': `${cashfreeCredentials?.x_client_ecret}`,
             },
         });
         return response.data;

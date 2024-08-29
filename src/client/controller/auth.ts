@@ -73,7 +73,7 @@ export default {
 
 			//machinist validation
 
-			console.log("req.body for customer", req?.body?.mobile_number)
+			
 
 
 			const schema = Joi.object({
@@ -145,8 +145,6 @@ export default {
 
 			let user = await models.users.create(data);
 
-			console.log("User after registration", user);
-
 			const token = jwt.sign({ id: user.id }, env.secret);
 
 			let u: any = user.toJSON();
@@ -217,7 +215,7 @@ export default {
 				}
 			);
 
-			//sendMail({to:data.email, subject, body});
+			sendMail({to:data.email, subject, body});
 
 
 
@@ -365,9 +363,6 @@ export default {
 			);
 
 			sendMail({ to: data.email, subject, body });
-
-
-
 
 			return R(res, true, "Registered", u);
 		}

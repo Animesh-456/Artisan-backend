@@ -14,22 +14,21 @@ import { jsPDF } from "jspdf";
 import mail from "@config/mail";
 import Stripe from "stripe";
 import { verifyCashfree } from "@client/routes/verifyCashfree";
-
-
-// const stripe = new Stripe('sk_test_51P10WjSI5JkjOQYeRJzK1Jf8ZRSwvLKIU63oD7qQKL10vqYWIM2WLUsHUYkiWiY5j5wmPF7FVVwomeICaTUzirQ300yJv1rB05', {
-// 	apiVersion: '2023-10-16',
-// });
-
-
 import { Cashfree } from "cashfree-pg";
 import { Project_categories } from "@model/Project_categories";
 import { messages } from "@model/messages";
 // import { verifyCashfree } from "@client/routes/verifyCashfree";
 const crypto = require("crypto")
+import dotenv from "dotenv";
+dotenv.config();
 
-Cashfree.XClientId = "TEST10167206cb646b2c5b786024977f60276101",
-	Cashfree.XClientSecret = "cfsk_ma_test_27727896027d911c54b85a03aa909f2d_248e91f4",
-	Cashfree.XEnvironment = Cashfree.Environment.SANDBOX;
+const XEnvironment = process.env.CASHFREE_ENVIRONMENT === "SANDBOX"
+  ? Cashfree.Environment.SANDBOX
+  : Cashfree.Environment.PRODUCTION;
+
+Cashfree.XClientId = process.env.XClientId,
+Cashfree.XClientSecret = process.env.XClientSecret,
+Cashfree.XEnvironment = XEnvironment;
 
 export default {
 	test: asyncWrapper(async (req: UserAuthRequest, res: Response) => {
@@ -1096,7 +1095,7 @@ export default {
 			}
 
 		})
-		//sendMail({to: user.email, subject, body});
+		sendMail({to: user.email, subject, body});
 
 
 
