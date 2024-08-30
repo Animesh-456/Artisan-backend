@@ -1308,7 +1308,7 @@ export default {
 		const api_data_rep: object = {
 			"!newpassword": randomPassword,
 			"!username": users?.user_name,
-			"!url": 'https://www.machining-4u.co.uk/signin'
+			"!url": `${mail?.mailbaseurl}auth/sign-in`
 		}
 
 
@@ -1401,7 +1401,7 @@ export default {
 
 		const api_data_rep: object = {
 			"!username": users?.user_name,
-			"!url": 'https://www.machining-4u.co.uk/signin',
+			"!url": `${mail.mailbaseurl}auth/sign-in`,
 			"!email": users?.email
 		}
 

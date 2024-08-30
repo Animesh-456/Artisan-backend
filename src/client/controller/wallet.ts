@@ -464,9 +464,9 @@ export default {
 		const api_data_rep: object = {
 			"!project": project.project_name,
 			"!username": machinist?.user_name,
-			"!bid_amount": transaction_details.amount_gbp,
+			"!bid_amount": ((transaction_details.amount_gbp) * (100 - gbpRate?.rate) / 100),
 			"!withdraw_url": `${mail.mailbaseurl}account/withdraw`,
-			"!amount": ((transaction_details.amount_gbp) * (100 - 15) / 100),
+			"!amount": transaction_details.amount_gbp,
 		}
 
 		const mailData = await models.email_templates.findOne({

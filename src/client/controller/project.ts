@@ -23,12 +23,12 @@ import dotenv from "dotenv";
 dotenv.config();
 
 const XEnvironment = process.env.CASHFREE_ENVIRONMENT === "SANDBOX"
-  ? Cashfree.Environment.SANDBOX
-  : Cashfree.Environment.PRODUCTION;
+	? Cashfree.Environment.SANDBOX
+	: Cashfree.Environment.PRODUCTION;
 
 Cashfree.XClientId = process.env.XClientId,
-Cashfree.XClientSecret = process.env.XClientSecret,
-Cashfree.XEnvironment = XEnvironment;
+	Cashfree.XClientSecret = process.env.XClientSecret,
+	Cashfree.XEnvironment = XEnvironment;
 
 export default {
 	test: asyncWrapper(async (req: UserAuthRequest, res: Response) => {
@@ -1095,7 +1095,7 @@ export default {
 			}
 
 		})
-		sendMail({to: user.email, subject, body});
+		sendMail({ to: user.email, subject, body });
 
 
 
@@ -1410,7 +1410,7 @@ export default {
 				"!project_title": String(project.project_name),
 				"!supplier_email": progemail?.email,
 				"!project_name": String(project.project_name),
-				"!project_url": `${mail.mailbaseurl}machining/${project.project_name.split(" ").join("-")}-${project?.id}`
+				"!project_url": `${mail.mailbaseurl}${project.project_name.split(" ").join("-")}-${project?.id}`
 			}
 
 
@@ -1647,7 +1647,7 @@ export default {
 		const api_data_rep: object = {
 			"!provider_name": machinist?.user_name,
 			"!project_name": project?.project_name,
-			"!project_url": `${mail.mailbaseurl}`
+			"!project_url": `${mail.mailbaseurl}${project?.project_name.split(" ").join("-")}-${project?.id}`
 		}
 
 		const mailData = await models.email_templates.findOne({
@@ -2198,7 +2198,7 @@ export default {
 				//update transcations table with orderId and project table with project_id from transactions table
 
 
-				let transactionDetails: any = await models.transactions.findOne({
+				var transactionDetails: any = await models.transactions.findOne({
 					where: {
 						order_id: paymentDetails?.order_id
 					}
@@ -2206,7 +2206,7 @@ export default {
 
 				if (!transactionDetails) return R(res, false, "No transactions found", { message: "No transactions found" });
 
-				let projectDetails: any = await models.projects.findOne({
+				var projectDetails: any = await models.projects.findOne({
 					where: {
 						id: transactionDetails?.project_id
 					}
@@ -2224,6 +2224,191 @@ export default {
 				await projectDetails?.save();
 
 
+
+
+
+				//mail endpoint 
+
+
+
+				let bid: any = await models.bids.findOne({
+					where: {
+						project_id: projectDetails.id,
+						user_id: projectDetails.programmer_id
+					},
+				});
+
+
+				let gbpRate: any = await models.commission_rate.findOne({
+					where: {
+						commission_id: 1
+					},
+					attributes: ["rate"]
+				})
+
+
+
+				let supplier = await models.users.findOne({
+					where: {
+						id: projectDetails?.programmer_id
+					}
+				})
+
+				let task_id = 107;
+
+				const api_data_rep: object = {
+					"!project_title": projectDetails?.project_name,
+					"!supplier_username": supplier?.user_name,
+					"!bid_amount": transactionDetails?.amount_gbp,
+					"!shipping_date": bid?.bid_days,
+					"!amount": (transactionDetails?.amount_gbp) * (100 - gbpRate?.rate) / 100,
+					"!project_url": `${mail.mailbaseurl}${projectDetails?.project_name.split(" ").join("-")}-${projectDetails?.id}`
+
+				}
+
+				const mailData = await models.email_templates.findOne({
+					where: {
+						id: task_id,
+						country_code: "en"
+					},
+					attributes: ["title", "mail_subject", "mail_body"],
+				});
+
+				var body = mailData?.mail_body;
+				var title = mailData?.title;
+				var subject = mailData?.mail_subject;
+
+				(Object.keys(api_data_rep) as (keyof typeof api_data_rep)[]).forEach(key => {
+					if (body?.includes(key)) {
+						var re = new RegExp(key, 'g');
+						body = body.replace(re, api_data_rep[key])
+					}
+
+					if (title?.includes(key)) {
+						var re = new RegExp(key, 'g');
+						title = title.replace(re, api_data_rep[key])
+					}
+
+					if (subject?.includes(key)) {
+						var re = new RegExp(key, 'g');
+						subject = subject.replace(re, api_data_rep[key])
+					}
+
+
+
+
+				});
+
+
+				(Object.keys(site_mail_data) as (keyof typeof site_mail_data)[]).forEach(key => {
+
+
+					if (body?.includes(key)) {
+
+						var re = new RegExp(key, 'g');
+
+						body = body.replace(re, site_mail_data[key])
+					}
+
+					if (title?.includes(key)) {
+						var re = new RegExp(key, 'g');
+						title = title.replace(re, site_mail_data[key])
+					}
+
+					if (subject?.includes(key)) {
+						var re = new RegExp(key, 'g');
+						subject = subject.replace(re, site_mail_data[key])
+					}
+				})
+
+				sendMail({ to: supplier?.email, subject, body });
+
+				// notification to supplier
+
+				//console.log("notif -->",notifs);
+
+				let user = await models.users.findOne({
+					where: {
+						id: projectDetails.creator_id
+					}
+				})
+
+
+				let task_id_cust = 106;
+
+				const api_data_rep_cus: object = {
+					"!project_title": projectDetails?.project_name,
+					"!username": user?.user_name,
+					"!bid_amount": transactionDetails?.amount,
+					"!withdraw_url": `${mail.mailbaseurl}auth/sign-in`,
+					"!amount": transactionDetails?.amount_gbp,
+					"!supplier_name": supplier?.user_name,
+					"!delvry_date": bid?.bid_days
+				}
+
+				const mailData_cus = await models.email_templates.findOne({
+					where: {
+						id: task_id_cust,
+						country_code: "en"
+					},
+					attributes: ["title", "mail_subject", "mail_body"],
+				});
+
+				var body = mailData_cus?.mail_body;
+				var title = mailData_cus?.title;
+				var subject = mailData_cus?.mail_subject;
+
+				(Object.keys(api_data_rep_cus) as (keyof typeof api_data_rep_cus)[]).forEach(key => {
+					if (body?.includes(key)) {
+						var re = new RegExp(key, 'g');
+						body = body.replace(re, api_data_rep_cus[key])
+					}
+
+					if (title?.includes(key)) {
+						var re = new RegExp(key, 'g');
+						title = title.replace(re, api_data_rep_cus[key])
+					}
+
+					if (subject?.includes(key)) {
+						var re = new RegExp(key, 'g');
+						subject = subject.replace(re, api_data_rep_cus[key])
+					}
+
+
+
+
+				});
+
+
+				(Object.keys(site_mail_data) as (keyof typeof site_mail_data)[]).forEach(key => {
+
+
+					if (body?.includes(key)) {
+
+						var re = new RegExp(key, 'g');
+
+						body = body.replace(re, site_mail_data[key])
+					}
+
+					if (title?.includes(key)) {
+						var re = new RegExp(key, 'g');
+						title = title.replace(re, site_mail_data[key])
+					}
+
+					if (subject?.includes(key)) {
+						var re = new RegExp(key, 'g');
+						subject = subject.replace(re, site_mail_data[key])
+					}
+				})
+
+				sendMail({ to: user?.email, subject, body });
+
+
+
+
+
+
+
 				console.log("Payment status success", paymentDetails?.order_status)
 				return R(res, true, "Received webhook:", { message: "Received webhook!" });
 			}
@@ -2235,161 +2420,7 @@ export default {
 
 			console.log('Payment :', { orderId, paymentStatus });
 
-			//mail endpoint 
 
-			// 	let supplier = await models.users.findOne({
-			// 		where: {
-			// 			id: project.programmer_id
-			// 		}
-			// 	})
-
-			// 	let task_id = 107;
-
-			// 	const api_data_rep: object = {
-			// 		"!project_title": project.project_name,
-			// 		"!supplier_username": supplier?.user_name,
-			// 		"!bid_amount": transaction_details.amount_gbp,
-			// 		"!shipping_date": project.bids[0].bid_days,
-			// 		"!amount": (transaction_details.amount_gbp) * (100 - 15) / 100,
-			// 		"!project_url": `${mail.mailbaseurl}project/${project.project_name}/${project.id}`
-
-			// 	}
-
-			// 	const mailData = await models.email_templates.findOne({
-			// 		where: {
-			// 			id: task_id,
-			// 			country_code: "en"
-			// 		},
-			// 		attributes: ["title", "mail_subject", "mail_body"],
-			// 	});
-
-			// 	var body = mailData?.mail_body;
-			// 	var title = mailData?.title;
-			// 	var subject = mailData?.mail_subject;
-
-			// 	(Object.keys(api_data_rep) as (keyof typeof api_data_rep)[]).forEach(key => {
-			// 		if (body?.includes(key)) {
-			// 			var re = new RegExp(key, 'g');
-			// 			body = body.replace(re, api_data_rep[key])
-			// 		}
-
-			// 		if (title?.includes(key)) {
-			// 			var re = new RegExp(key, 'g');
-			// 			title = title.replace(re, api_data_rep[key])
-			// 		}
-
-			// 		if (subject?.includes(key)) {
-			// 			var re = new RegExp(key, 'g');
-			// 			subject = subject.replace(re, api_data_rep[key])
-			// 		}
-
-
-
-
-			// 	});
-
-
-			// 	(Object.keys(site_mail_data) as (keyof typeof site_mail_data)[]).forEach(key => {
-
-
-			// 		if (body?.includes(key)) {
-
-			// 			var re = new RegExp(key, 'g');
-
-			// 			body = body.replace(re, site_mail_data[key])
-			// 		}
-
-			// 		if (title?.includes(key)) {
-			// 			var re = new RegExp(key, 'g');
-			// 			title = title.replace(re, site_mail_data[key])
-			// 		}
-
-			// 		if (subject?.includes(key)) {
-			// 			var re = new RegExp(key, 'g');
-			// 			subject = subject.replace(re, site_mail_data[key])
-			// 		}
-			// 	})
-
-			// 	sendMail({ to: supplier?.email, subject, body });
-
-			// 	// notification to supplier
-
-			// 	//console.log("notif -->",notifs);
-
-			// 	let user = await models.users.findOne({
-			// 		where: {
-			// 			id: project.creator_id
-			// 		}
-			// 	})
-
-			// 	let task_id_cust = 106;
-
-			// 	const api_data_rep_cus: object = {
-			// 		"!project_title": project.project_name,
-			// 		"!username": user?.user_name,
-			// 		"!bid_amount": transaction_details.amount,
-			// 		"!withdraw_url": `${mail.mailbaseurl}auth/sign-in`,
-			// 		"!amount": transaction_details.amount_gbp,
-			// 		"!supplier_name": supplier?.user_name,
-			// 		"!delvry_date": project.bids[0].bid_days
-			// 	}
-
-			// 	const mailData_cus = await models.email_templates.findOne({
-			// 		where: {
-			// 			id: task_id_cust,
-			// 			country_code: "en"
-			// 		},
-			// 		attributes: ["title", "mail_subject", "mail_body"],
-			// 	});
-
-			// 	var body = mailData_cus?.mail_body;
-			// 	var title = mailData_cus?.title;
-			// 	var subject = mailData_cus?.mail_subject;
-
-			// 	(Object.keys(api_data_rep_cus) as (keyof typeof api_data_rep_cus)[]).forEach(key => {
-			// 		if (body?.includes(key)) {
-			// 			var re = new RegExp(key, 'g');
-			// 			body = body.replace(re, api_data_rep_cus[key])
-			// 		}
-
-			// 		if (title?.includes(key)) {
-			// 			var re = new RegExp(key, 'g');
-			// 			title = title.replace(re, api_data_rep_cus[key])
-			// 		}
-
-			// 		if (subject?.includes(key)) {
-			// 			var re = new RegExp(key, 'g');
-			// 			subject = subject.replace(re, api_data_rep_cus[key])
-			// 		}
-
-
-
-
-			// 	});
-
-
-			// 	(Object.keys(site_mail_data) as (keyof typeof site_mail_data)[]).forEach(key => {
-
-
-			// 		if (body?.includes(key)) {
-
-			// 			var re = new RegExp(key, 'g');
-
-			// 			body = body.replace(re, site_mail_data[key])
-			// 		}
-
-			// 		if (title?.includes(key)) {
-			// 			var re = new RegExp(key, 'g');
-			// 			title = title.replace(re, site_mail_data[key])
-			// 		}
-
-			// 		if (subject?.includes(key)) {
-			// 			var re = new RegExp(key, 'g');
-			// 			subject = subject.replace(re, site_mail_data[key])
-			// 		}
-			// 	})
-
-			// 	sendMail({ to: user?.email, subject, body });
 			return R(res, false, "Payment not done", { message: "Payment not done" });
 
 
@@ -2855,7 +2886,7 @@ export default {
 
 			const api_data_rep_sup: object = {
 				"!username": supplier?.user_name,
-				"!public_profile_link": `${mail.mailbaseurl}account/public-profile/${supplier?.id}`
+				"!public_profile_link": `${mail.mailbaseurl}account/artist-profile/${supplier?.id}`
 
 			}
 
@@ -3305,7 +3336,7 @@ export default {
 				"!project_name": project.project_name,
 				"!supplier_name ": macdetails2?.user_name,
 				"!message": message.msg_box,
-				"!project_url": `${mail.mailbaseurl}machining/${project.project_name.split(" ").join("-")}-${project?.id}`,
+				"!project_url": `${mail.mailbaseurl}${project.project_name.split(" ").join("-")}-${project?.id}`,
 			}
 
 			let task_id = 87;
@@ -3372,7 +3403,7 @@ export default {
 			const api_data_rep: object = {
 				"!project_name": project.project_name,
 				"!message": message.msg_box,
-				"!project_url": `${mail.mailbaseurl}machining/${project.project_name.split(" ").join("-")}-${project?.id}`,
+				"!project_url": `${mail.mailbaseurl}${project.project_name.split(" ").join("-")}-${project?.id}`,
 
 			}
 
@@ -3944,7 +3975,7 @@ export default {
 			where: {
 				rating: {
 					[Op.gte]: 4
-				}, 
+				},
 				country_code: 2
 			},
 			include: [
