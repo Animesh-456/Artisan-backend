@@ -3,14 +3,19 @@ import dotenv from "dotenv";
 dotenv.config();
 
 export default {
-	mailhostname: process.env.MAIL_HOSTNAME,
-	mailport: process.env.MAIL_PORT,
-	mailuseremail: process.env.MAIL_USERNAME,
-	mailuserpwd: process.env.MAILUSERPWD,
-	mailfrom: process.env.MAIL_FROM,
-	logoImage: process.env.APP_LOGO,
-	appName: process.env.APP_NAME,
-	infoMail: process.env.MAIL_USERNAME_INFO,
-	contactNumber: process.env.APP_CONTACT,
-	mailbaseurl: process.env.MAIL_BASE_URL
+	mailhostname: "aartstudio.in@gmail.com",
+	mailport: 465,
+	mailuseremail: "",
+	mailuserpwd: "zsmayypzbovzwghw",
+	mailfrom: "aartstudio.in@gmail.com",
+	logoImage: "",
+	appName: "",
+	infoMail: "",
+	contactNumber: "",
+	mailbaseurl: "https://aartstudio.in/",
+	service: "gmail",
+	site_name: "aartstudio.in",
+	site_url: "https://aartstudio.in/",
+	contact_url: "Info@aartstudio.in",
+	site_title: "Aartstudio"
 };

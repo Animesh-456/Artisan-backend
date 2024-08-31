@@ -2,19 +2,16 @@ import mail from "@config/mail";
 import { any, object } from "joi";
 import nodemailer from "nodemailer";
 
-import dotenv from "dotenv";
-
-dotenv.config();
 
 export async function sendMail(
 	data: any
 ) {
 	const { to, html, body, subject, isAsync, attachment } = data;
 	const transporter = nodemailer.createTransport({
-		host: String(process.env.MAIL_HOSTNAME),
+		host: mail?.mailhostname,
 		port: 465,
 		secure: true,
-		service: String(process.env.SERVICE),
+		service: mail?.service,
 		auth: {
 			user: mail.mailfrom,
 			pass: mail.mailuserpwd,
@@ -46,8 +43,8 @@ export async function sendMail(
 }
 
 export const site_mail_data = {
-	"!site_name": String(process.env.SITE_NAME),
-	"!site_url": String(process.env.SITE_URL),
-	"!contact_url": String(process.env.CONTACT_URL),
-	"!site_title": String(process.env.SITE_TITLE),
+	"!site_name": mail?.site_name,
+	"!site_url": mail?.site_url,
+	"!contact_url": mail?.contact_url,
+	"!site_title": mail?.site_title,
 }
