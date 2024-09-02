@@ -49,6 +49,7 @@ const ignorePaths = [
 	"/user/project/after-payment",
 	"/user/project/kyc",
 	"/user/project/get-commision-rate",
+	"/user/project/contact-us",
 	// "/user/project/add-art-work",
 	// "/user/webhook/deposit-fund",
 ];

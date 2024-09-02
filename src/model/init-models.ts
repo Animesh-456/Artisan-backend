@@ -190,7 +190,8 @@ import type { Project_categoriesAttributes, Project_categoriesCreationAttributes
 import { kyc as _kyc, kyc } from "./kyc";
 import type { kycAttributes, kycCreationAttributes } from "./kyc";
 
-
+import { help_request as _help_request } from "./help_request";
+import type { help_requestAttributes , help_requestCreationAttributes } from "./help_request";
 
 export {
   _admin_apprv_imgs as admin_apprv_imgs,
@@ -288,6 +289,7 @@ export {
   _users as users,
   _Project_categories as Project_categories,
   _kyc as kyc,
+  _help_request as help_request,
   
 
 };
@@ -482,7 +484,10 @@ export type {
   Project_categoriesAttributes,
   Project_categoriesCreationAttributes,
   kycAttributes,
-  kycCreationAttributes
+  kycCreationAttributes,
+  help_requestAttributes,
+  help_requestCreationAttributes
+ 
 };
 
 export function initModels(sequelize: Sequelize) {
@@ -582,6 +587,7 @@ export function initModels(sequelize: Sequelize) {
   const users = _users.initModel(sequelize);
   const Project_categories = _Project_categories.initModel(sequelize);
   const kyc = _kyc.initModel(sequelize);
+  const help_request = _help_request.initModel(sequelize);
 
 
   users.belongsTo(country, { as: "country_code_country", foreignKey: "country_code" });
@@ -636,6 +642,9 @@ export function initModels(sequelize: Sequelize) {
 
   kyc.belongsTo(users, { as: "programmer", foreignKey: "user_id" });
   users.hasMany(kyc, { as: "programmer_kyc", foreignKey: "user_id" });
+
+  help_request.belongsTo(users, { as: "programmer", foreignKey: "user_id" });
+  help_request.hasMany(kyc, { as: "programmer_kyc", foreignKey: "user_id" });
 
   return {
     admin_apprv_imgs: admin_apprv_imgs,
@@ -732,6 +741,7 @@ export function initModels(sequelize: Sequelize) {
     user_list: user_list,
     user_relation: user_relation,
     users: users,
-    kyc: kyc
+    kyc: kyc, 
+    help_request: help_request,
   };
 }

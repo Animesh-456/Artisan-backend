@@ -9,5 +9,5 @@ export default {
  	prot_pic: process.cwd() + "/public/portfolios/",
 	invoice: process.cwd() + "/public/pdf_generation/",
 	kyc: process.cwd() + "/public/kyc/",
-	
+	help: process.cwd() + "/public/help/",
 };

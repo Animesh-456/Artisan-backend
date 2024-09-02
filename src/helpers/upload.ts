@@ -671,3 +671,54 @@ export const uploadkyc = async (req: UserAuthRequest, res: Response) => {
 	}
 };
 
+
+export const uploadhelpFiles = async (req: UserAuthRequest, res: Response) => {
+	try {
+		let publicPath = env.help;
+
+		if (!req.files) {
+			return R(res, false, "No file uploaded!");
+		}
+
+		const file = req.files.file;
+		const data: any = [];
+
+		const move = (image: any, i: any) => {
+			const file = image;
+			let filename = file?.name;
+			let index = i + 1;
+
+			try {
+				const extensionName = path?.extname(filename ?? "");
+
+				fs.mkdirSync(`${publicPath}`, { recursive: true });
+
+
+				filename = filename.substring(0, 3) + Date.now()
+					.toString(36)
+					.toUpperCase()
+					.split("")
+					.reverse()
+					.join("") + `${index}` + extensionName;
+
+
+
+
+				file.mv(`${publicPath}${filename}`);
+			} catch (e) {
+				return R(res, false, "File upload failed");
+			}
+
+			data.push(filename);
+		};
+
+		Array.isArray(file)
+			? file.forEach((file, i) => move(file, i))
+			: move(file, 0);
+
+		return data;
+	} catch (e) {
+		return R(res, false, "File upload failed");
+	}
+};
+

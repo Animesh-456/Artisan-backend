@@ -3,7 +3,7 @@ import { asyncWrapper, R } from "@helpers/response-helpers";
 import { UserAuthRequest, UserAuthBufferRequest } from "@middleware/auth";
 import models from "@model/index";
 import db from "@db/mysql";
-import { uploadFile, uploadMachiningFile, uploadOneFile, shippingmachiningfile, uploadsendmsgFile, uploadInvoice, uploadadditionalFile, deleteadditionalFile, uploadProtpic, deleteprofilepic, deleteportfoliopic, uploadbidfile, uploadkyc } from "@helpers/upload";
+import { uploadFile, uploadMachiningFile, uploadOneFile, shippingmachiningfile, uploadsendmsgFile, uploadInvoice, uploadadditionalFile, deleteadditionalFile, uploadProtpic, deleteprofilepic, deleteportfoliopic, uploadbidfile, uploadkyc, uploadhelpFiles } from "@helpers/upload";
 import { Pick, Validate } from "validation/utils";
 import schema from "validation/schema";
 import moment from "moment";
@@ -1495,7 +1495,7 @@ export default {
 				"!supplier_name": progemail?.user_name,
 				"!project_name": String(project.project_name),
 				"!supplier_email": progemail?.email,
-				"!project_details": `${mail.mailbaseurl}machining/${project.project_name.split(" ").join("-")}-${project?.id}`,
+				"!project_details": `${mail.mailbaseurl}/${project.project_name.split(" ").join("-")}-${project?.id}`,
 
 			}
 
@@ -5908,6 +5908,110 @@ export default {
 		} catch (error) {
 			console.error('Error fetching categories with subcategories:', error);
 			return R(res, false, "no kyc details found")
+		}
+	}),
+
+	contact_us: asyncWrapper(async (req: UserAuthRequest, res: Response) => {
+
+
+
+		try {
+			// Logic to store data in db
+
+			const reqBody = req.body;
+
+			if (req?.files?.file) {
+				var file = await uploadhelpFiles(req, res)
+				var concatenatedData = file?.join(',')
+			}
+
+
+			const obj: any = {
+				role: reqBody?.role,
+				name: reqBody?.name,
+				email: reqBody?.email,
+				mobile_number: reqBody?.mobile_number,
+				subject: reqBody?.subject,
+				comment: reqBody?.comment,
+				attachments: concatenatedData || ""
+			}
+
+
+			const result = await models.help_request.create(obj);
+
+
+			// mail functionality
+
+			const task_id = 187;
+
+			// const api_data_rep: object = {
+			// 	"!project": project.project_name,
+			// 	"!username": machinist?.user_name,
+			// 	"!bid_amount": ((transaction_details.amount_gbp) * (100 - gbpRate?.rate) / 100),
+			// 	"!withdraw_url": `${mail.mailbaseurl}account/withdraw`,
+			// 	"!amount": transaction_details.amount_gbp,
+			// }
+
+			const mailData = await models.email_templates.findOne({
+				where: {
+					id: task_id,
+					country_code: "en"
+				},
+				attributes: ["title", "mail_subject", "mail_body"],
+			});
+
+			var body = mailData?.mail_body;
+			var title = mailData?.title;
+			var subject = mailData?.mail_subject;
+
+			// (Object.keys(api_data_rep) as (keyof typeof api_data_rep)[]).forEach(key => {
+			// 	if (body?.includes(key)) {
+			// 		var re = new RegExp(key, 'g');
+			// 		body = body.replace(re, api_data_rep[key])
+			// 	}
+
+			// 	if (title?.includes(key)) {
+			// 		var re = new RegExp(key, 'g');
+			// 		title = title.replace(re, api_data_rep[key])
+			// 	}
+
+			// 	if (subject?.includes(key)) {
+			// 		var re = new RegExp(key, 'g');
+			// 		subject = subject.replace(re, api_data_rep[key])
+			// 	}
+
+
+
+
+			// });
+
+
+			(Object.keys(site_mail_data) as (keyof typeof site_mail_data)[]).forEach(key => {
+
+
+				if (body?.includes(key)) {
+
+					var re = new RegExp(key, 'g');
+
+					body = body.replace(re, site_mail_data[key])
+				}
+
+				if (title?.includes(key)) {
+					var re = new RegExp(key, 'g');
+					title = title.replace(re, site_mail_data[key])
+				}
+
+				if (subject?.includes(key)) {
+					var re = new RegExp(key, 'g');
+					subject = subject.replace(re, site_mail_data[key])
+				}
+			})
+
+			sendMail({ to: String(process.env.ADMIN_EMAIL), subject, body });
+
+			return R(res, true, "Request submitted", result);
+		} catch (err) {
+			return R(res, false, "Error occured ! please try after sometime")
 		}
 	}),
 };

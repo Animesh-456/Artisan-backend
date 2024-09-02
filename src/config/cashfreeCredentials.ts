@@ -2,11 +2,11 @@ import dotenv from "dotenv";
 dotenv.config();
 
 export default {
-    cashfree_api_url: "https://sandbox.cashfree.com",
-    return_url: "http://localhost:3000",
-    cancel_url: "https://aartstudio.in/artworklisting",
-    order_currency: "INR",
-    x_client_id: "TEST10167206cb646b2c5b786024977f60276101",
-    x_client_ecret: "cfsk_ma_test_27727896027d911c54b85a03aa909f2d_248e91f4",
-    x_api_version: "2023-08-01"
+    cashfree_api_url: String(process.env.CASHFREE_API_URL),
+    return_url: String(process.env.RETURN_URL),
+    cancel_url: String(process.env.CANCEL_URL),
+    order_currency: String(process.env.ORDER_CURRENCY),
+    x_client_id: process.env.XClientId,
+    x_client_ecret: process.env.XClientSecret,
+    x_api_version: String(process.env.X_API_VERSION),
 }
