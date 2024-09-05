@@ -365,6 +365,71 @@ export const uploadProtpic = async (req: UserAuthRequest, res: Response) => {
 	}
 };
 
+export const uploadvideoFile = async (req: UserAuthRequest, res: Response) => {
+	try {
+		let publicPath = env.prot_pic;
+		const maxSize = 5 * 1024 * 1024; // 5MB file size limit (adjust as needed)
+
+		if (!req.files) {
+			return R(res, false, "No file uploaded!");
+		}
+
+		const file = req?.files?.videofile;
+		const data: any = [];
+
+		const move = (image: any, i: any) => {
+			const file = image;
+			let filename = file?.name;
+			let index = i + 1;
+			try {
+				const extensionName = path?.extname(filename ?? "");
+
+				const allowedExtension = [".mp4", ".MP4"];
+				if (!allowedExtension.includes(extensionName)) {
+					return R(res, false, `${extensionName} is not allowed`);
+				}
+
+				// Check file size
+				if (file.size > maxSize) {
+					return R(res, false, `File size exceeds limit of ${maxSize / (1024 * 1024)}MB`);
+				}
+
+				if (req.user?.id) {
+					filename = filename.substring(0, 3) + Date.now()
+						.toString(36)
+						.toUpperCase()
+						.split("")
+						.reverse()
+						.join("") + req.user?.id + `${index}` + extensionName;
+				} else {
+					filename =
+						filename.substring(0, 3) + Date.now()
+							.toString(36)
+							.toUpperCase()
+							.split("")
+							.reverse()
+							.join("") + `${index}` + extensionName;
+				}
+
+				file.mv(`${publicPath}${filename}`);
+			} catch (e) {
+				return R(res, false, "File upload failed");
+			}
+
+			data.push(filename);
+		};
+
+		Array.isArray(file)
+			? file.map((file, i) => move(file, i))
+			: move(file, 0);
+
+		return data;
+	} catch (e) {
+		return R(res, false, "Machined parts image file upload failed");
+	}
+};
+
+
 export const uploadInvoice = async (req: UserAuthRequest, res: Response) => {
 	try {
 		let publicPath = env.invoice;

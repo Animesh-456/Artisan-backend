@@ -3,7 +3,7 @@ import { asyncWrapper, R } from "@helpers/response-helpers";
 import { UserAuthRequest, UserAuthBufferRequest } from "@middleware/auth";
 import models from "@model/index";
 import db from "@db/mysql";
-import { uploadFile, uploadMachiningFile, uploadOneFile, shippingmachiningfile, uploadsendmsgFile, uploadInvoice, uploadadditionalFile, deleteadditionalFile, uploadProtpic, deleteprofilepic, deleteportfoliopic, uploadbidfile, uploadkyc, uploadhelpFiles } from "@helpers/upload";
+import { uploadFile, uploadMachiningFile, uploadOneFile, shippingmachiningfile, uploadsendmsgFile, uploadInvoice, uploadadditionalFile, deleteadditionalFile, uploadProtpic, deleteprofilepic, deleteportfoliopic, uploadbidfile, uploadkyc, uploadhelpFiles, uploadvideoFile } from "@helpers/upload";
 import { Pick, Validate } from "validation/utils";
 import schema from "validation/schema";
 import moment from "moment";
@@ -5547,6 +5547,11 @@ export default {
 				var concatenatedData = file.join(',');
 			}
 
+			if (req.files?.videofile) {
+				var videofile = await uploadvideoFile(req, res)
+				var videoconcatenatedData = videofile.join(',');
+			}
+
 			let portfolio_data: any = {
 				user_id: user_id,
 				title: body?.title,
@@ -5554,7 +5559,7 @@ export default {
 				description: body?.description,
 				categories: body?.category,
 				attachment1: concatenatedData || null,
-				attachment2: "",
+				attachment2: videoconcatenatedData || "",
 				attachment3: "",
 				attachment4: "",
 				attachment5: "",
