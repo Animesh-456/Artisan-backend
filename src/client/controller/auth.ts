@@ -73,7 +73,7 @@ export default {
 
 			//machinist validation
 
-			
+
 
 
 			const schema = Joi.object({
@@ -215,7 +215,7 @@ export default {
 				}
 			);
 
-			sendMail({to:data.email, subject, body});
+			sendMail({ to: data.email, subject, body });
 
 
 
@@ -243,8 +243,8 @@ export default {
 				address1: Joi.string().required(),
 				zcode: Joi.string().required(),
 				city: Joi.string().required(),
-				company_name: Joi.string().required(),
-				company_number: Joi.string().required(),
+				company_name: Joi.required(),
+				company_number: Joi.required(),
 				Squestion: Joi.string().required(),
 				answer: Joi.string().required(),
 				category: Joi.string().required(),
@@ -929,6 +929,11 @@ export default {
 		if (!balanceData) {
 			return R(res, false, "Invalid User");
 		}
+
+		if (balanceData?.amount == 0 || balanceData?.amount_gbp == 0) return R(res, false, "No balance to withdraw!");
+
+
+		if (req.body.val > balanceData?.amount) return R(res, false, "Insufficient balance to withdraw!");
 
 		const user = await models.users.findOne({
 			where: {

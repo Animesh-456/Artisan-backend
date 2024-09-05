@@ -771,7 +771,7 @@ export default {
 			"!customer_name": custemail?.name,
 			"!project_name": project?.project_name,
 			"!response": question.message,
-			"!project_url": `${mail.mailbaseurl}machining/${project.project_name.split(" ").join("-")}-${project?.id}`,
+			"!project_url": `${mail.mailbaseurl}${project.project_name.split(" ").join("-")}-${project?.id}`,
 		}
 
 
@@ -868,7 +868,7 @@ export default {
 			"!supplier_name": supplieremail?.name,
 			"!project_name": project?.project_name,
 			"!response": data.message,
-			"!project_url": `${mail.mailbaseurl}machining/${project?.project_name.split(" ").join("-")}-${project?.id}`,
+			"!project_url": `${mail.mailbaseurl}${project?.project_name.split(" ").join("-")}-${project?.id}`,
 		}
 
 
