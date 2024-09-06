@@ -5627,14 +5627,6 @@ export default {
 
 	edit_art_portfolio: asyncWrapper(async (req: UserAuthRequest, res: Response) => {
 
-		let data = await Validate(
-			res,
-			["id", "title", "description", "category", "existingFiles"],
-			schema.project.edit_art,
-			req.body,
-			{},
-		);
-
 		const body = req.body;
 		const id = req.query.id
 
@@ -5657,6 +5649,12 @@ export default {
 			if (body?.existingFiles == '') {
 				const file = await uploadProtpic(req, res)
 				const concatenatedData = file.join(',');
+				var videoconcatenatedData = body?.existingvideoFiles;
+
+				if (req.files?.videofile) {
+					var videofile = await uploadvideoFile(req, res)
+					videoconcatenatedData = body?.existingvideoFiles ? `${body?.existingvideoFiles},${videofile.join(',')}` : `${videofile.join(',')}`;
+				}
 
 				const edit: any = {
 					title: body?.title,
@@ -5664,7 +5662,7 @@ export default {
 					description: body?.description,
 					categories: body?.category,
 					attachment1: concatenatedData,
-					attachment2: "",
+					attachment2: videoconcatenatedData,
 					attachment3: "",
 					attachment4: "",
 					attachment5: "",
@@ -5678,6 +5676,12 @@ export default {
 				const mainFile = body?.existingFiles?.split(",")[0];
 				const existingAttachment1 = body?.existingFiles;
 				var concatenatedData = '';
+				var videoconcatenatedData = body?.existingvideoFiles;
+
+				if (req.files?.videofile) {
+					var videofile = await uploadvideoFile(req, res)
+					videoconcatenatedData = body?.existingvideoFiles ? `${body?.existingvideoFiles},${videofile.join(',')}` : `${videofile.join(',')}`;
+				}
 
 				if (req?.files?.file) {
 					var file = await uploadProtpic(req, res)
@@ -5692,7 +5696,7 @@ export default {
 					description: body?.description,
 					categories: body?.category,
 					attachment1: concatenatedData,
-					attachment2: "",
+					attachment2: videoconcatenatedData,
 					attachment3: "",
 					attachment4: "",
 					attachment5: "",

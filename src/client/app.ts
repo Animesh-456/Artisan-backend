@@ -48,7 +48,7 @@ app.use(errorHandler);
 
 app.listen(env.port, () => {
 	figlet.text(
-		"Harsh . js",
+		"Aartstudio",
 		{
 			font: "Big",
 		},
