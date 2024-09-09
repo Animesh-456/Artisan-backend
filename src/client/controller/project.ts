@@ -5416,7 +5416,7 @@ export default {
 
 	page_details: asyncWrapper(async (req: UserAuthRequest, res: Response) => {
 
-		
+
 		let pg_res = await models.page_details.findAll({
 			where: {
 				id: req?.query?.id?.toString(),
@@ -6032,5 +6032,16 @@ export default {
 			}
 		});
 		return R(res, true, "content details", pg_res);
+	}),
+
+
+	home_page_content: asyncWrapper(async (req: UserAuthRequest, res: Response) => {
+		console.log("params is is", req?.query?.id)
+		let pg_res = await models.home_text.findAll({
+			where: {
+				id: req?.query?.id?.toString()
+			}
+		});
+		return R(res, true, "home page content details", pg_res);
 	}),
 };

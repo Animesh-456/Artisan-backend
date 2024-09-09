@@ -111,6 +111,7 @@ router.get("/all-lists", cn.all_lists);
 router.get("/project-gallery", cn.project_gallery);
 router.get("/page-details", cn.page_details);
 router.get("/page-content-details", cn.page_content_details);
+router.get("/home-page-content", cn.home_page_content);
 
 
 

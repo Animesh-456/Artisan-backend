@@ -191,7 +191,10 @@ import { kyc as _kyc, kyc } from "./kyc";
 import type { kycAttributes, kycCreationAttributes } from "./kyc";
 
 import { help_request as _help_request } from "./help_request";
-import type { help_requestAttributes , help_requestCreationAttributes } from "./help_request";
+import type { help_requestAttributes, help_requestCreationAttributes } from "./help_request";
+
+import { home_text as _home_text } from "./home_text";
+import type { home_textAttributes, home_textCreationAttributes } from "./home_text";
 
 export {
   _admin_apprv_imgs as admin_apprv_imgs,
@@ -290,7 +293,8 @@ export {
   _Project_categories as Project_categories,
   _kyc as kyc,
   _help_request as help_request,
-  
+  _home_text as home_text,
+
 
 };
 
@@ -486,8 +490,10 @@ export type {
   kycAttributes,
   kycCreationAttributes,
   help_requestAttributes,
-  help_requestCreationAttributes
- 
+  help_requestCreationAttributes,
+  home_textAttributes,
+  home_textCreationAttributes
+
 };
 
 export function initModels(sequelize: Sequelize) {
@@ -588,6 +594,7 @@ export function initModels(sequelize: Sequelize) {
   const Project_categories = _Project_categories.initModel(sequelize);
   const kyc = _kyc.initModel(sequelize);
   const help_request = _help_request.initModel(sequelize);
+  const home_text = _home_text.initModel(sequelize);
 
 
   users.belongsTo(country, { as: "country_code_country", foreignKey: "country_code" });
@@ -741,7 +748,8 @@ export function initModels(sequelize: Sequelize) {
     user_list: user_list,
     user_relation: user_relation,
     users: users,
-    kyc: kyc, 
+    kyc: kyc,
     help_request: help_request,
+    home_text: help_request
   };
 }
