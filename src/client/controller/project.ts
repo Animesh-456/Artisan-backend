@@ -5423,7 +5423,6 @@ export default {
 				language: "en"
 			}
 		});
-		console.log("the page details is :-", pg_res);
 		return R(res, true, " Projects list", pg_res);
 	}),
 
@@ -6022,5 +6021,17 @@ export default {
 		} catch (err) {
 			return R(res, false, "Error occured ! please try after sometime")
 		}
+	}),
+
+
+
+	page_content_details: asyncWrapper(async (req: UserAuthRequest, res: Response) => {
+		console.log("params is is", req?.query?.id)
+		let pg_res = await models.page_uk.findAll({
+			where:{
+				id: req?.query?.id?.toString()
+			}
+		});
+		return R(res, true, "content details", pg_res);
 	}),
 };

@@ -110,7 +110,7 @@ router.get("/project-review", cn.project_review);
 router.get("/all-lists", cn.all_lists);
 router.get("/project-gallery", cn.project_gallery);
 router.get("/page-details", cn.page_details);
-
+router.get("/page-content-details", cn.page_content_details);
 
 
 
