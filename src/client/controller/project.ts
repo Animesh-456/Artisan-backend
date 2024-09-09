@@ -5416,14 +5416,13 @@ export default {
 
 	page_details: asyncWrapper(async (req: UserAuthRequest, res: Response) => {
 
-
+		
 		let pg_res = await models.page_details.findAll({
 			where: {
-
-				language: "en"
+				id: req?.query?.id?.toString(),
 			}
 		});
-		return R(res, true, " Projects list", pg_res);
+		return R(res, true, " pagedetails list", pg_res);
 	}),
 
 	project_detail_seo: asyncWrapper(async (req: UserAuthRequest, res: Response) => {
@@ -6028,7 +6027,7 @@ export default {
 	page_content_details: asyncWrapper(async (req: UserAuthRequest, res: Response) => {
 		console.log("params is is", req?.query?.id)
 		let pg_res = await models.page_uk.findAll({
-			where:{
+			where: {
 				id: req?.query?.id?.toString()
 			}
 		});
