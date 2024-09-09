@@ -750,6 +750,6 @@ export function initModels(sequelize: Sequelize) {
     users: users,
     kyc: kyc,
     help_request: help_request,
-    home_text: help_request
+    home_text: home_text
   };
 }
