@@ -6044,4 +6044,16 @@ export default {
 		});
 		return R(res, true, "home page content details", pg_res);
 	}),
+
+
+	faq_content: asyncWrapper(async (req: UserAuthRequest, res: Response) => {
+		console.log("faq id are", req?.query?.faqCategoryId);
+		let pg_res = await models.faqs.findAll({
+			where: {
+				faq_category_id: req?.query?.faqCategoryId?.toString()
+			}
+		});
+		return R(res, true, "FAQ content details", pg_res);
+	}),
+
 };
