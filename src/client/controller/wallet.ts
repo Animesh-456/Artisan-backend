@@ -387,7 +387,7 @@ export default {
 		const cdate = new Date()
 		let notifdata: any = {
 			email_type: "Pay machinist",
-			email_subject: "Machinist selected",
+			email_subject: "Artist selected",
 			supplier_id: project.programmer_id,
 			email_body: `Dear ${mach?.user_name},
 

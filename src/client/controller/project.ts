@@ -1855,7 +1855,7 @@ export default {
 
 			sendMail({ to: user.email, subject, body });
 
-			return R(res, true, "Machinist selected");
+			return R(res, true, "Artist selected");
 		},
 	),
 	add_payment: asyncWrapper(async (req: any, res: Response) => {
@@ -3654,7 +3654,7 @@ export default {
 						required: false,
 					}
 				],
-				attributes: ['rating', 'project_id', 'buyer_id', 'provider_id'],
+				attributes: ['rating', 'project_id', 'buyer_id', 'provider_id', 'comments'],
 			})
 
 			//console.log(user_reviews);
@@ -3693,7 +3693,7 @@ export default {
 					required: false,
 				}
 			],
-			attributes: ['rating', 'project_id', 'buyer_id', 'provider_id'],
+			attributes: ['rating', 'project_id', 'buyer_id', 'provider_id', 'comments'],
 		})
 
 		//console.log(provider_reviews);
@@ -3746,7 +3746,7 @@ export default {
 						required: false,
 					}
 				],
-				attributes: ['rating', 'project_id', 'buyer_id', 'provider_id'],
+				attributes: ['rating', 'project_id', 'buyer_id', 'provider_id', 'comments'],
 			})
 
 			//console.log(user_reviews);
@@ -3785,7 +3785,7 @@ export default {
 					required: false,
 				}
 			],
-			attributes: ['rating', 'project_id', 'buyer_id', 'provider_id'],
+			attributes: ['rating', 'project_id', 'buyer_id', 'provider_id', 'comments'],
 		})
 
 		//console.log(provider_reviews);
