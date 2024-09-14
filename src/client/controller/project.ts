@@ -141,9 +141,9 @@ export default {
 					"bids_count",
 				],
 			],
+			order: order,
 			limit: opt.limit,
 			offset: opt.page * opt.limit,
-			order: order,
 		});
 
 		let list: any = projects.rows;
