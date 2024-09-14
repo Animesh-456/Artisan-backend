@@ -45,6 +45,7 @@ export default {
 			user_id: req.query.user_id?.toString() || null,
 			category: req.query.category?.toString() || "",
 			searchQuery: req.query.searchQuery?.toString() || "",
+			sortBy: req.query.sortBy?.toString() || "newest",
 		};
 
 		let userQuery = opt.user_id
@@ -80,14 +81,30 @@ export default {
 			};
 		}
 
-
-
 		console.log("going for plist")
 
+		// FILTER LOGIC------------------------
+		let order: any;
+		switch (opt.sortBy) {
+			case 'oldest':
+				order = [['project_post_format_date', 'ASC']];
+				break;
+			case 'newest':
+				order = [['project_post_format_date', 'DESC']];
+				break;
+			case 'az':
+				order = [['project_name', 'ASC']];
+				break;
+			case 'za':
+				order = [['project_name', 'DESC']];
+				break;
+			default:
+				order = [['project_post_format_date', 'DESC']];
+		}
+		/// Filter logic-------------------------
 		const projects = await models.projects.findAndCountAll({
 			where: whereClause,
 			include: [
-
 				{
 					model: models.users,
 					as: "creator",
@@ -126,9 +143,8 @@ export default {
 			],
 			limit: opt.limit,
 			offset: opt.page * opt.limit,
-			order: [["project_post_format_date", "DESC"]],
+			order: order,
 		});
-		//console.log("projects--",projects)
 
 		let list: any = projects.rows;
 		let count = projects.count;
