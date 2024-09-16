@@ -3919,9 +3919,41 @@ export default {
 			]
 		});
 
-		console.log("projects---", projects)
+		//console.log("projects---", projects)
 
-		return R(res, true, "project review list", projects, {});
+
+
+		let reviews = await models.reviews.findAll({
+			where: {
+				country_code: 2,
+				rating: { [Op.gte]: 3 } // Only include reviews with ratings >= 4
+			},
+			include: [
+				{
+					model: models.users,
+					as: "provider",
+					attributes: ["user_name", "name", "surname", "logo"],
+					include: [
+						{
+							model: models.portfolio,
+							as: "programmer_portfolio",
+							required: true,
+						},
+						
+					],
+					required: true,
+				},
+			],
+			attributes: ['rating', 'provider_id', 'review_post_date'], // Include review_post_date
+			order: [['review_post_date', 'DESC']], // Order reviews by review_post_date, most recent first
+			limit: 50,
+			offset: 1
+		});
+
+
+		//console.log("top atist work", reviews)
+
+		return R(res, true, "project review list", reviews, {});
 	}),
 
 
