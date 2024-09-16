@@ -3919,7 +3919,45 @@ export default {
 			]
 		});
 
-		console.log("projects---", projects)
+		//console.log("projects---", projects)
+
+
+
+		let reviews = await models.reviews.findAll({
+			where: {
+				// rating: {
+				// 	[Op.gte]: 4
+				// },
+				country_code: 2
+			},
+			include: [
+				{
+					model: models.users,
+					as: "provider",
+					where: {
+						id: { [Op.col]: "provider_id" },
+					},
+					attributes: ["user_name", "name", "surname", "logo"],
+					required: false,
+				},
+				{
+					model: models.portfolio,
+					as: "portfolio",
+					where: {
+						user_id: { [Op.col]: "provider_id" },
+					},
+					//attributes: ["user_name", "name", "surname", "logo"],
+					required: false,
+				},
+			],
+			attributes: ['rating', 'provider_id'],
+			order: [["review_post_date", "DESC"]],
+			limit: 10,
+			//offset: 10,
+		});
+
+
+		console.log("top atist work", reviews)
 
 		return R(res, true, "project review list", projects, {});
 	}),

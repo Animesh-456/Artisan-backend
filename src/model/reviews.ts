@@ -2,6 +2,7 @@ import * as Sequelize from 'sequelize';
 import { DataTypes, Model, Optional } from 'sequelize';
 import type { projects, projectsId } from './projects';
 import type { users, usersId } from './users';
+import { portfolio, portfolioId } from './portfolio';
 
 export interface reviewsAttributes {
   id: number;
@@ -82,6 +83,12 @@ export class reviews extends Model<reviewsAttributes, reviewsCreationAttributes>
   getProvider!: Sequelize.BelongsToGetAssociationMixin<users>;
   setProvider!: Sequelize.BelongsToSetAssociationMixin<users, usersId>;
   createProvider!: Sequelize.BelongsToCreateAssociationMixin<users>;
+
+
+  portfolio!: portfolio;
+  getPortfolio!: Sequelize.BelongsToGetAssociationMixin<portfolio>;
+  setPortfolio!: Sequelize.BelongsToSetAssociationMixin<portfolio, portfolioId>;
+  createPortfolio!: Sequelize.BelongsToCreateAssociationMixin<portfolio>;
 
   static initModel(sequelize: Sequelize.Sequelize): typeof reviews {
     return sequelize.define('reviews', {

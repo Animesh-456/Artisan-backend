@@ -634,6 +634,9 @@ export function initModels(sequelize: Sequelize) {
   reviews.belongsTo(users, { as: "buyer", foreignKey: "buyer_id" });
   users.hasMany(reviews, { as: "reviews", foreignKey: "buyer_id" });
   reviews.belongsTo(users, { as: "provider", foreignKey: "provider_id" });
+
+
+
   users.hasMany(reviews, { as: "provider_reviews", foreignKey: "provider_id" });
   transactions.belongsTo(users, { as: "creator", foreignKey: "creator_id" });
   users.hasMany(transactions, { as: "transactions", foreignKey: "creator_id" });
@@ -643,6 +646,9 @@ export function initModels(sequelize: Sequelize) {
 
   portfolio.belongsTo(users, { as: "programmer", foreignKey: "user_id" });
   users.hasMany(portfolio, { as: "programmer_portfolio", foreignKey: "user_id" });
+
+  reviews.belongsTo(portfolio, { as: "portfolio", foreignKey: "provider_id" });
+  portfolio.hasMany(reviews, { as: "provider_reviews", foreignKey: "provider_id" });
 
   Project_categories.belongsTo(Project_categories, { as: 'subcategories', foreignKey: 'parent_id' });
   Project_categories.hasMany(Project_categories, { as: 'parent', foreignKey: 'parent_id' });
