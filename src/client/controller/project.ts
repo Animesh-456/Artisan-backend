@@ -3925,41 +3925,35 @@ export default {
 
 		let reviews = await models.reviews.findAll({
 			where: {
-				// rating: {
-				// 	[Op.gte]: 4
-				// },
-				country_code: 2
+				country_code: 2,
+				rating: { [Op.gte]: 3 } // Only include reviews with ratings >= 4
 			},
 			include: [
 				{
 					model: models.users,
 					as: "provider",
-					where: {
-						id: { [Op.col]: "provider_id" },
-					},
 					attributes: ["user_name", "name", "surname", "logo"],
-					required: false,
-				},
-				{
-					model: models.portfolio,
-					as: "portfolio",
-					where: {
-						user_id: { [Op.col]: "provider_id" },
-					},
-					//attributes: ["user_name", "name", "surname", "logo"],
-					required: false,
+					include: [
+						{
+							model: models.portfolio,
+							as: "programmer_portfolio",
+							required: true,
+						},
+						
+					],
+					required: true,
 				},
 			],
-			attributes: ['rating', 'provider_id'],
-			order: [["review_post_date", "DESC"]],
-			limit: 10,
-			//offset: 10,
+			attributes: ['rating', 'provider_id', 'review_post_date'], // Include review_post_date
+			order: [['review_post_date', 'DESC']], // Order reviews by review_post_date, most recent first
+			limit: 50,
+			offset: 1
 		});
 
 
-		console.log("top atist work", reviews)
+		//console.log("top atist work", reviews)
 
-		return R(res, true, "project review list", projects, {});
+		return R(res, true, "project review list", reviews, {});
 	}),
 
 
