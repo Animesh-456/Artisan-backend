@@ -53,6 +53,7 @@ const ignorePaths = [
 	"/user/project/contact-us",
 	"/user/project/home-page-content",
 	"/user/project/faq-content",
+	"/user/project/send-mail-test",
 	// "/user/project/add-art-work",
 	// "/user/webhook/deposit-fund",
 ];

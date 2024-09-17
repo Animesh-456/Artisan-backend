@@ -9,6 +9,7 @@ import schema from "validation/schema";
 import moment from "moment";
 import { Op, Sequelize } from "sequelize";
 import { sendMail, site_mail_data } from "@helpers/mail";
+import { sendMailtest } from "@helpers/ml";
 import { float } from "aws-sdk/clients/lightsail";
 import { jsPDF } from "jspdf";
 import mail from "@config/mail";
@@ -2875,6 +2876,24 @@ export default {
 
 
 
+			const artist: any = await models.users.findOne({
+				where: {
+					id: project?.programmer_id
+				}
+			})
+
+			const totalJobs = artist?.totalJobs;
+			const avgRating = artist?.avgRating;
+
+			const updatedAvgRating = (avgRating * totalJobs + project_rating) / (totalJobs + 1);
+
+			await artist.update({
+				totalJobs: totalJobs + 1,         // Increment totalJobs by 1
+				avgRating: updatedAvgRating       // Update avgRating with the new value
+			});
+
+
+
 			////////////////////////////////////////Send mail Functionality//////////////////////
 
 			let cust_name = await models.users.findOne({
@@ -3923,37 +3942,22 @@ export default {
 
 
 
-		let reviews = await models.reviews.findAll({
+		let results = await models.users.findAll({
 			where: {
-				country_code: 2,
-				rating: { [Op.gte]: 3 } // Only include reviews with ratings >= 4
+				role_id: 2, 
+				avgRating: {
+					[Op.gte] : 4
+				}
 			},
-			include: [
-				{
-					model: models.users,
-					as: "provider",
-					attributes: ["user_name", "name", "surname", "logo"],
-					include: [
-						{
-							model: models.portfolio,
-							as: "programmer_portfolio",
-							required: true,
-						},
-						
-					],
-					required: true,
-				},
-			],
-			attributes: ['rating', 'provider_id', 'review_post_date'], // Include review_post_date
-			order: [['review_post_date', 'DESC']], // Order reviews by review_post_date, most recent first
-			limit: 50,
-			offset: 1
+			attributes: ["email", "user_name", "logo", "id", "avgRating", "totalJobs"],
+			order: [['createdAt', 'DESC']], // Sort by average rating
+			//limit : 10
 		});
 
 
 		//console.log("top atist work", reviews)
 
-		return R(res, true, "project review list", reviews, {});
+		return R(res, true, "top artist list", results, {});
 	}),
 
 
@@ -6102,6 +6106,24 @@ export default {
 			}
 		});
 		return R(res, true, "FAQ content details", pg_res);
+	}),
+
+
+
+
+
+	send_mail_test: asyncWrapper(async (req: UserAuthRequest, res: Response) => {
+
+
+		try {
+
+			await sendMailtest({ to: 'anim29006@gmail.com', subject: 'Test mail subject', body: 'Hi this is a test mail from machining' });
+			return R(res, true, "mail sent");
+		} catch (error) {
+			console.log(error)
+			return R(res, false, "Error sending mail");
+		}
+
 	}),
 
 };

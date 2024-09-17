@@ -9,6 +9,7 @@ import type { projects, projectsId } from './projects';
 import type { reviews, reviewsId } from './reviews';
 import type { transactions, transactionsId } from './transactions';
 import type { portfolio, portfolioId } from './portfolio'
+import { float } from 'aws-sdk/clients/lightsail';
 
 export interface usersAttributes {
   id: number;
@@ -35,7 +36,7 @@ export interface usersAttributes {
   account?: string;
   user_status: number;
   activation_key?: string;
-  zcode?: string; 
+  zcode?: string;
   Squestion?: string;
   answer?: string;
   state?: string;
@@ -76,6 +77,8 @@ export interface usersAttributes {
   updatedAt?: Date;
   category?: string;
   mobile_number?: number;
+  avgRating?: float;
+  totalJobs?: number;
 }
 
 export type usersPk = "id";
@@ -149,6 +152,8 @@ export class users extends Model<usersAttributes, usersCreationAttributes> imple
   updatedAt?: Date;
   category?: string;
   mobile_number?: number;
+  avgRating?: float;
+  totalJobs?: number;
 
   // users belongsTo country via country_code
   country_code_country!: country;
@@ -567,6 +572,14 @@ export class users extends Model<usersAttributes, usersCreationAttributes> imple
       },
       mobile_number: {
         type: DataTypes.NUMBER,
+        allowNull: true
+      },
+      avgRating: {
+        type: DataTypes.FLOAT,
+        allowNull: true
+      },
+      totalJobs: {
+        type: DataTypes.INTEGER,
         allowNull: true
       },
     }, {

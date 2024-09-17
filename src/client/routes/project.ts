@@ -114,6 +114,8 @@ router.get("/page-content-details", cn.page_content_details);
 router.get("/home-page-content", cn.home_page_content);
 router.get("/faq-content", cn.faq_content);
 
+router.post("/send-mail-test", cn.send_mail_test);
+
 
 
 
