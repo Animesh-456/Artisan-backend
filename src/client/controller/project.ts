@@ -42,7 +42,7 @@ export default {
 
 		const opt = {
 			page: parseInt(req.query.page?.toString() || "0"),
-			limit: parseInt(req.query.limit?.toString() || "10"),
+			limit: parseInt(req.query.limit?.toString() || "50"),
 			user_id: req.query.user_id?.toString() || null,
 			category: req.query.category?.toString() || "",
 			searchQuery: req.query.searchQuery?.toString() || "",
@@ -6111,7 +6111,7 @@ export default {
 
 			const opt = {
 				page: parseInt(req.query.page?.toString() || "0"),
-				limit: parseInt(req.query.limit?.toString() || "10"),
+				limit: parseInt(req.query.limit?.toString() || "50"),
 			};
 
 			// Build the query options dynamically based on query parameters
