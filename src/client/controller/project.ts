@@ -6115,6 +6115,9 @@ export default {
 			};
 
 
+			console.log("categ", categories)
+
+
 
 
 
