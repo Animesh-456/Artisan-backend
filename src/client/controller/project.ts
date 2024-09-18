@@ -6114,13 +6114,6 @@ export default {
 				limit: parseInt(req.query.limit?.toString() || "10"),
 			};
 
-
-			console.log("categ", categories)
-
-
-
-
-
 			// Build the query options dynamically based on query parameters
 			const queryOptions: any = {
 				where: {},
