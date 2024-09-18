@@ -3915,38 +3915,13 @@ export default {
 			country_code: 2
 		};
 
-		// Fetch projects with the defined where clause
-		const projects = await models.projects.findAll({
-			where: proj,
-			include: [
-				{
-					model: models.reviews,
-					as: "reviews",
-					where: {
-						project_id: { [Op.col]: "projects.id" }
-					},
-					required: false
-				},
-				{
-					model: models.users,
-					as: "creator",
-					attributes: ["email", "user_name", "logo"],
-				},
-			],
-			order: [
-				['createdAt', 'DESC']  // Change 'createdAt' to the column you want to sort by
-			]
-		});
-
-		//console.log("projects---", projects)
-
 
 
 		let results = await models.users.findAll({
 			where: {
-				role_id: 2, 
+				role_id: 2,
 				avgRating: {
-					[Op.gte] : 4
+					[Op.gte]: 4
 				}
 			},
 			attributes: ["email", "user_name", "logo", "id", "avgRating", "totalJobs"],
@@ -6123,6 +6098,82 @@ export default {
 			console.log(error)
 			return R(res, false, "Error sending mail");
 		}
+
+	}),
+
+
+
+	artist_list: asyncWrapper(async (req: UserAuthRequest, res: Response) => {
+
+		try {
+			const { ratingOrder, categories }: any = req.query;
+
+
+			const opt = {
+				page: parseInt(req.query.page?.toString() || "0"),
+				limit: parseInt(req.query.limit?.toString() || "10"),
+			};
+
+
+
+
+
+			// Build the query options dynamically based on query parameters
+			const queryOptions: any = {
+				where: {},
+				order: [],
+				attributes: ["email", "user_name", "logo", "id", "avgRating", "totalJobs"],
+				limit: opt.limit,
+				offset: opt.page * opt.limit,
+			};
+
+			// 1. Sort by avgRating: "low-to-high" or "high-to-low"
+			if (ratingOrder === 'low-to-high') {
+				queryOptions.order.push(['avgRating', 'ASC']);
+			} else if (ratingOrder === 'high-to-low') {
+				queryOptions.order.push(['avgRating', 'DESC']);
+			} else if (ratingOrder === 'a-z') {
+				queryOptions.order.push(['user_name', 'ASC']);
+			} else if (ratingOrder === 'z-a') {
+				queryOptions.order.push(['user_name', 'DESC']);
+			} else if (ratingOrder === 'newest-oldest') {
+				queryOptions.order.push(['createdAt', 'DESC']);
+			} else if (ratingOrder === 'oldest-newest') {
+				queryOptions.order.push(['createdAt', 'ASC']);
+			}
+
+
+
+
+			// 3. Filter by category (comma-separated string of numbers)
+			if (categories) {
+				const categoryFilter = categories?.split(',').map(Number); // Convert categories into array of numbers
+				queryOptions.where.category = {
+					[Op.or]: categoryFilter.map((categoryNumber: any) => {
+						return {
+							[Op.like]: `%${categoryNumber}%`  // Will match the comma-separated numbers in the category column
+						};
+					})
+				};
+			}
+
+			// Fetch the users based on the query options
+			const users = await models.users.findAndCountAll(queryOptions);
+
+			// Send response
+			return R(res, true, "top artist list", users, {
+				current_page: opt.page,
+				total_count: users?.count,
+				total_pages: Math.floor(users?.count / opt.limit),
+			});
+		} catch (error) {
+			console.error('Error fetching users:', error);
+			return R(res, false, "top artist list", error, {});
+		}
+
+
+		//console.log("top atist work", reviews)
+
 
 	}),
 

@@ -104,6 +104,9 @@ router.get("/customer_review", cn.customer_reviews);
 router.get("/my-projects", cn.my_project);
 router.get("/review-proj", cn.review_projects);
 
+
+router.get("/artist-list", cn.artist_list);
+
 router.get("/image-list", cn.image_list);
 router.get("/notifs", cn.notifs);
 router.get("/project-review", cn.project_review);
