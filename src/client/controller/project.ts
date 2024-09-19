@@ -3926,7 +3926,19 @@ export default {
 			},
 			attributes: ["email", "user_name", "logo", "id", "avgRating", "totalJobs"],
 			order: [['createdAt', 'DESC']], // Sort by average rating
-			//limit : 10
+			include: [
+				{
+					model: models.portfolio, // Assuming 'portfolio' is the model name
+					as: 'programmer_portfolio',        // The alias for the association
+					where: {
+						user_id: { [Op.col]: "user_id" },
+					},
+
+					limit: 1, // Only fetch the first portfolio row
+					attributes: ['main_img', 'id', 'title', 'description'], // Select portfolio fields
+					required: true, // Ensures it still fetches users without portfolios (left join)
+				}
+			]
 		});
 
 
@@ -6116,11 +6128,26 @@ export default {
 
 			// Build the query options dynamically based on query parameters
 			const queryOptions: any = {
-				where: {},
+				where: {
+					role_id: 2
+				},
 				order: [],
 				attributes: ["email", "user_name", "logo", "id", "avgRating", "totalJobs"],
 				limit: opt.limit,
 				offset: opt.page * opt.limit,
+				include: [
+					{
+						model: models.portfolio, // Assuming 'portfolio' is the model name
+						as: 'programmer_portfolio',        // The alias for the association
+						where: {
+							user_id: { [Op.col]: "user_id" },
+						},
+
+						limit: 1, // Only fetch the first portfolio row
+						attributes: ['main_img', 'id', 'title', 'description'], // Select portfolio fields
+						required: true, // Ensures it still fetches users without portfolios (left join)
+					}
+				]
 			};
 
 			// 1. Sort by avgRating: "low-to-high" or "high-to-low"
