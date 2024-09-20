@@ -3925,7 +3925,8 @@ export default {
 				}
 			},
 			attributes: ["email", "user_name", "logo", "id", "avgRating", "totalJobs"],
-			order: [['createdAt', 'DESC']], // Sort by average rating
+			order: [['createdAt', 'DESC']],
+			limit: 20,
 			include: [
 				{
 					model: models.portfolio, // Assuming 'portfolio' is the model name
@@ -6196,6 +6197,41 @@ export default {
 
 
 		//console.log("top atist work", reviews)
+
+
+	}),
+
+
+
+	steps_text: asyncWrapper(async (req: UserAuthRequest, res: Response) => {
+
+		try {
+
+			const supresult = await models.supplier_job_page.findAll({
+				where: {
+					id: {
+						[Op.in]: [1, 2, 3], // IDs to match
+					},
+				},
+			})
+
+			const custresult = await models.customer_job_page.findAll({
+				where: {
+					id: {
+						[Op.in]: [2, 3, 4], // IDs to match
+					},
+				},
+			})
+
+
+
+
+			// Send response
+			return R(res, true, "top artist list", { customertext: custresult, suptext: supresult });
+		} catch (error) {
+			console.error('Error fetching users:', error);
+			return R(res, false, "Error fetching steps text", error, {});
+		}
 
 
 	}),
