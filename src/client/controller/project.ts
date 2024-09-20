@@ -6125,12 +6125,16 @@ export default {
 			const opt = {
 				page: parseInt(req.query.page?.toString() || "0"),
 				limit: parseInt(req.query.limit?.toString() || "50"),
+				searchQuery: req.query.searchQuery?.toString() || "",
 			};
 
 			// Build the query options dynamically based on query parameters
 			const queryOptions: any = {
 				where: {
-					role_id: 2
+					role_id: 2,
+					user_name: {
+						[Op.like]: `%${opt.searchQuery}%`
+					}
 				},
 				order: [],
 				attributes: ["email", "user_name", "logo", "id", "avgRating", "totalJobs"],
