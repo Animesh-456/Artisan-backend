@@ -6128,6 +6128,8 @@ export default {
 				searchQuery: req.query.searchQuery?.toString() || "",
 			};
 
+			console.log("searchQuery", opt.searchQuery)
+
 			// Build the query options dynamically based on query parameters
 			const queryOptions: any = {
 				where: {
