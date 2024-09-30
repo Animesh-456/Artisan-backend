@@ -2474,16 +2474,7 @@ export default {
 				status: "Completed",
 
 			},
-			// attributes: {
-			// 	include: [
-			// 		[
-			// 			db.sequelize.literal(
-			// 				`(SELECT COUNT(*) FROM transactions WHERE reciever_id = machinists.reciever_id)`,
-			// 			),
-			// 			"bids_count",
-			// 		],
-			// 	],
-			// },
+			
 			include: [
 				{
 					model: models.projects,
