@@ -480,7 +480,38 @@ export default {
 		if (!user) {
 			return R(res, false, "Invalid User");
 		}
-		return R(res, true, "User data", user);
+
+
+		const categoryIds = user?.category
+			? user?.category.split(',').map((id: any) => parseInt(id.trim(), 10))
+			: [];
+
+		// Fetch category names from Project_categories
+		const categories = await models.Project_categories.findAll({
+			where: {
+				id: {
+					[Op.in]: categoryIds
+				}
+			}
+		});
+
+		// Create a map of ID to category name
+		const categoryMap = new Map<number, string>();
+		categories.forEach(category => {
+			categoryMap.set(category?.id, category?.category_name);
+		});
+
+		// Replace comma-separated IDs with category names
+		const categoryNames = categoryIds
+			.map((id: any) => categoryMap.get(id))
+			.filter((name: any) => name !== undefined);
+
+		// Include category names in the project object
+		const projectWithCategories = {
+			...user.toJSON(),
+			category_names: categoryNames
+		};
+		return R(res, true, "User data", projectWithCategories);
 	}),
 
 	delivery_contacts: asyncWrapper(async (req: UserAuthRequest, res: Response) => {
@@ -582,6 +613,11 @@ export default {
 			}
 
 		}
+
+
+
+
+
 
 		return R(res, true, "profile updated");
 	}),
