@@ -15,6 +15,7 @@ import moment from "moment";
 import { sendMail, site_mail_data } from "@helpers/mail";
 import crypto from 'crypto';
 import mail from "@config/mail";
+import { createVerificationToken } from "@helpers/emailVerification";
 
 export default {
 	test: asyncWrapper(async (req: UserAuthRequest, res: Response) => {
@@ -153,11 +154,18 @@ export default {
 
 			// send mail function
 
+
+			const verifyToken = await createVerificationToken(user);
+
+			const backendURL = 'https://db.aartstudio.in/'
+
+			const verificationLink = `${backendURL}user/auth/verify-email?token=${verifyToken}`;
+
 			const api_data_rep: object = {
 				"!username": user.user_name,
 				"!usertype": "customer",
 				"!password": userPassword,
-				"!activation_url": `${mail.mailbaseurl}auth/sign-in`
+				"!activation_url": `${verificationLink}`
 			};
 
 
@@ -298,13 +306,25 @@ export default {
 			delete u.password;
 			u["token"] = token;
 
+
+			// Email verification logic
+
+			const verifyToken = await createVerificationToken(user);
+
+			const backendURL = 'https://db.aartstudio.in/'
+
+			const verificationLink = `${backendURL}user/auth/verify-email?token=${verifyToken}`;
+
+			//console.log("verificationLink", verificationLink)
+
+
 			// send mail function
 
 			const api_data_rep: object = {
 				"!username": user.user_name,
 				"!usertype": "machanic",
 				"!password": machanicPass,
-				"!activation_url": `${mail.mailbaseurl}auth/sign-in`
+				"!activation_url": `${verificationLink}`
 			};
 
 
@@ -367,6 +387,151 @@ export default {
 			return R(res, true, "Registered", u);
 		}
 	}),
+
+
+
+	verifyEmail: asyncWrapper(async (req: UserAuthRequest, res: Response) => {
+
+
+		const token: any = req.query.token;
+
+		if (!token) {
+			return res.status(400).send('Invalid token');
+		}
+
+		jwt.verify(token, 'ahjuii88hsgd', async (err: any, decoded: any) => {
+			if (err) {
+				return R(res, false, "Invalid/Expired token");
+			}
+
+			let user = await models.users.findOne({
+				where: {
+					id: decoded?.id,
+				},
+			});
+
+			if (!user) return R(res, false, "Invalid/Expired token");
+			if (user.emailVerified == 1) return R(res, true, "Email already verified");
+
+			await user?.update({ emailVerified: 1 })
+			return res.redirect(`${mail.mailbaseurl}auth/sign-in`)
+			//return R(res, true, "Email Verified");
+		});
+
+
+	}),
+
+
+
+	resendverifyEmail: asyncWrapper(async (req: UserAuthRequest, res: Response) => {
+		//validation
+
+		const { email } = req.body;
+
+		try {
+			const user = await models.users.findOne({
+				where: {
+					email: email
+				}
+			});
+
+			if (!user) {
+				return R(res, false, "Email not found");
+			}
+
+			if (user.emailVerified == 1) {
+				return R(res, false, "Email Already verified");
+			}
+
+			const verifyToken = await createVerificationToken(user);
+
+			const backendURL = 'https://db.aartstudio.in/'
+
+
+			const verificationLink = `${backendURL}user/auth/verify-email?token=${verifyToken}`;
+
+			
+
+
+			// send mail function
+
+			const api_data_rep: object = {
+				"!username": user.user_name,
+				"!usertype": "machanic",
+				"!activation_url": `${verificationLink}`
+			};
+
+
+
+			let task_id = 188;
+
+			const mailData = await models.email_templates.findOne({
+				where: {
+					id: task_id,
+					country_code: "en",
+				},
+				attributes: ["title", "mail_subject", "mail_body"],
+			});
+
+			var body = mailData?.mail_body;
+			var title = mailData?.title;
+			var subject = mailData?.mail_subject;
+
+			(Object.keys(api_data_rep) as (keyof typeof api_data_rep)[]).forEach(
+				(key) => {
+					if (body?.includes(key)) {
+						var re = new RegExp(key, "g");
+						body = body.replace(re, api_data_rep[key]);
+					}
+
+					if (title?.includes(key)) {
+						var re = new RegExp(key, "g");
+						title = title.replace(re, api_data_rep[key]);
+					}
+
+					if (subject?.includes(key)) {
+						var re = new RegExp(key, "g");
+						subject = subject.replace(re, api_data_rep[key]);
+					}
+				}
+			);
+
+			(Object.keys(site_mail_data) as (keyof typeof site_mail_data)[]).forEach(
+				(key) => {
+					if (body?.includes(key)) {
+						var re = new RegExp(key, "g");
+
+						body = body.replace(re, site_mail_data[key]);
+					}
+
+					if (title?.includes(key)) {
+						var re = new RegExp(key, "g");
+						title = title.replace(re, site_mail_data[key]);
+					}
+
+					if (subject?.includes(key)) {
+						var re = new RegExp(key, "g");
+						subject = subject.replace(re, site_mail_data[key]);
+					}
+				}
+			);
+
+			sendMail({ to: email, subject, body });
+
+			return R(res, true, "Verification link sent again");
+		} catch (error) {
+			return R(res, false, "Error sending email link");
+		}
+
+
+
+
+
+	}),
+
+
+
+
 	login: asyncWrapper(async (req: UserAuthRequest, res: Response) => {
 		//validation
 		const schema = Joi.object({
@@ -396,6 +561,8 @@ export default {
 		if (!user) {
 			return R(res, false, "Invalid Credentials");
 		}
+
+
 
 		function hashPassword(password: any) {
 			const hash = crypto.createHash('md5');

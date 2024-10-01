@@ -10,6 +10,9 @@ router.post("/register", cn.register);
 
 router.post("/login", cn.login);
 
+router.get("/verify-email", cn.verifyEmail);
+router.post("/resend-verify-email", cn.resendverifyEmail);
+
 router.get("/me", cn.me);
 router.get("/delivery_contacts", cn.delivery_contacts);
 
