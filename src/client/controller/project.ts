@@ -5549,6 +5549,13 @@ export default {
 
 	add_art_work: asyncWrapper(async (req: UserAuthRequest, res: Response) => {
 
+
+// Set a timeout for this specific request
+const timeout = setTimeout(() => {
+	res.status(408).send('Request timed out');
+}, 40000); // 1 minutes
+
+
 		let data = await Validate(
 			res,
 			["title", "description", "category"],
@@ -5597,8 +5604,10 @@ export default {
 
 			await models.portfolio.create(portfolio_data);
 
+			clearTimeout(timeout); // Clear the timeout if the request completes successfully
 			return R(res, true, "Art work added!", portfolio_data);
 		} catch (error) {
+			clearTimeout(timeout); // Clear the timeout on error
 			console.error(error);
 			return R(res, false, "Error adding art work!", error);
 		}
@@ -5661,6 +5670,10 @@ export default {
 
 		console.log("body:", body)
 		console.log("id", id)
+
+		const timeout = setTimeout(() => {
+			res.status(408).send('Request timed out');
+		}, 40000); // 1 minute
 
 		try {
 
@@ -5733,11 +5746,14 @@ export default {
 
 
 				await user_portfolio?.update(edit);
+
+			clearTimeout(timeout); // Clear the timeout if the request completes successfully
 				return R(res, true, "Art work updated!", user_portfolio);
 			}
 
 
 		} catch (error) {
+			clearTimeout(timeout); // Clear the timeout on error
 			console.log(error)
 			return R(res, false, "Error editing art work!", error);
 		}
