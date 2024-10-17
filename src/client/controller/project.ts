@@ -3,7 +3,7 @@ import { asyncWrapper, R } from "@helpers/response-helpers";
 import { UserAuthRequest, UserAuthBufferRequest } from "@middleware/auth";
 import models from "@model/index";
 import db from "@db/mysql";
-import { uploadFile, uploadMachiningFile, uploadOneFile, shippingmachiningfile, uploadsendmsgFile, uploadInvoice, uploadadditionalFile, deleteadditionalFile, uploadProtpic, deleteprofilepic, deleteportfoliopic, uploadbidfile, uploadkyc, uploadhelpFiles, uploadvideoFile } from "@helpers/upload";
+import { uploadFile, uploadMachiningFile, uploadOneFile, shippingmachiningfile, uploadsendmsgFile, uploadInvoice, uploadupdatedartFile, uploadadditionalFile, deleteadditionalFile, uploadProtpic, deleteprofilepic, deleteportfoliopic, uploadbidfile, uploadkyc, uploadhelpFiles, uploadvideoFile } from "@helpers/upload";
 import { Pick, Validate } from "validation/utils";
 import schema from "validation/schema";
 import moment from "moment";
@@ -21,6 +21,8 @@ import { messages } from "@model/messages";
 // import { verifyCashfree } from "@client/routes/verifyCashfree";
 const crypto = require("crypto")
 import dotenv from "dotenv";
+import project from "@validation/schema/project";
+import { projects } from "@model/projects";
 dotenv.config();
 
 const XEnvironment = process.env.CASHFREE_ENVIRONMENT === "SANDBOX"
@@ -2474,7 +2476,7 @@ export default {
 				status: "Completed",
 
 			},
-			
+
 			include: [
 				{
 					model: models.projects,
@@ -6233,6 +6235,74 @@ export default {
 
 	}),
 
+
+	update_art_jobs: asyncWrapper(async (req: UserAuthRequest, res: Response) => {
+		// Get project ID from query
+		let project_id = req.body?.id;
+		console.log("projects id is", project_id)
+		if (!project_id) {
+			return R(res, false, "No Project ID Found");
+		}
+
+		// Find the project by its ID
+		let project = await models.projects.findByPk(project_id.toString());
+		if (!project) {
+			return R(res, false, "No Project Found");
+		}
+
+		// Map fields from request body
+		let data = req.body;
+
+		console.log(data?.existingFiles)
+
+		if (data?.existingFiles != '') {
+			data["attachment_name"] = data?.existingFiles
+		}
+		data["title"] = data.project_name;  // Update title from request body
+		data["description"] = data.description;  // Update description
+		data["category"] = data.category;  // Update category field from request body
+
+	
+		var concatenatedData;
+
+		if (req?.files?.file && !data?.existingFiles) {
+			let files = await uploadupdatedartFile(req, res, project?.project_post_date);
+			concatenatedData = files?.join(',');
+		} else if (req?.files?.file && data?.existingFiles) {
+			let files = await uploadupdatedartFile(req, res, project?.project_post_date);
+			concatenatedData = `${data?.existingFiles}` + ',' + `${files?.join(',')}`
+		} else {
+			concatenatedData = data?.existingFiles
+		}
+
+		// Update project with the new data
+		await project.update({
+			project_name: data.title,
+			description: data.description,
+			category: data.category,
+			attachment_name: concatenatedData
+		});
+
+		return R(res, true, "Project updated successfully", project);
+	}),
+
+	delete_art: asyncWrapper(async (req: UserAuthRequest, res: Response) => {
+		// Get project ID from query
+		let project_id = req.query?.id;
+		if (!project_id) {
+			return R(res, false, "No Project ID Found");
+		}
+
+		// Find the project by its ID
+		let project = await models.projects.findByPk(project_id.toString());
+		if (!project) {
+			return R(res, false, "No Project Found");
+		}
+	
+		await project?.destroy();
+
+		return R(res, true, "Project updated successfully", project);
+	}),
 
 
 

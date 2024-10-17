@@ -72,6 +72,7 @@ export default {
 		project_id: Joi.number().required(),
 		user_id: Joi.number().required(),
 	},
+	
 	send_msg: {
 		project_id: Joi.number().required(),
 		to_id: Joi.number().required(),

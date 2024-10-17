@@ -74,6 +74,74 @@ export const uploadFile = async (req: UserAuthRequest, res: Response) => {
 	}
 };
 
+export const uploadupdatedartFile = async (req: UserAuthRequest, res: Response, date: any) => {
+	try {
+		let publicPath = env.project;
+
+		if (!req.files) {
+			return R(res, false, "No file uploaded!");
+		}
+
+		const file = req.files.file;
+		const data: any = [];
+
+		const move = (image: any, i: any) => {
+			const file = image;
+			let filename = file?.name;
+			let index = i + 1;
+			try {
+				const extensionName = path?.extname(filename ?? "");
+
+				// const allowedExtension = [".png", ".jpg", ".jpeg"];
+
+				// if (!allowedExtension.includes(extensionName)) {
+				// 	return res.json({ message: "Invalid Image", status: false });
+				// }
+
+				const month = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+
+				const today = new Date(date);
+				const _path = `${today.getUTCFullYear()}/${month[today.getMonth()]}/`
+
+				fs.mkdirSync(`${publicPath}/${_path}`, { recursive: true });
+
+
+				if (req?.user?.id) {
+					filename = filename.substring(0, 3) + Date.now()
+						.toString(36)
+						.toUpperCase()
+						.split("")
+						.reverse()
+						.join("") + req.user?.id + `${index}` + extensionName;
+				} else {
+					filename = filename.substring(0, 3) + Date.now()
+						.toString(36)
+						.toUpperCase()
+						.split("")
+						.reverse()
+						.join("") + `${index}` + extensionName;
+				}
+
+
+
+				file.mv(`${publicPath}${_path}${filename}`);
+			} catch (e) {
+				return R(res, false, "File upload failed");
+			}
+
+			data.push(filename);
+		};
+
+		Array.isArray(file)
+			? file.forEach((file, i) => move(file, i))
+			: move(file, 0);
+
+		return data;
+	} catch (e) {
+		return R(res, false, "File upload failed");
+	}
+};
+
 export const uploadOneFile = async (
 	req: UserAuthRequest,
 	res: Response,
