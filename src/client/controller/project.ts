@@ -21,6 +21,8 @@ import { messages } from "@model/messages";
 // import { verifyCashfree } from "@client/routes/verifyCashfree";
 const crypto = require("crypto")
 import dotenv from "dotenv";
+import project from "@validation/schema/project";
+import { projects } from "@model/projects";
 dotenv.config();
 
 const XEnvironment = process.env.CASHFREE_ENVIRONMENT === "SANDBOX"
@@ -5549,13 +5551,6 @@ export default {
 
 	add_art_work: asyncWrapper(async (req: UserAuthRequest, res: Response) => {
 
-
-// Set a timeout for this specific request
-const timeout = setTimeout(() => {
-	res.status(408).send('Request timed out');
-}, 40000); // 1 minutes
-
-
 		let data = await Validate(
 			res,
 			["title", "description", "category"],
@@ -5604,10 +5599,8 @@ const timeout = setTimeout(() => {
 
 			await models.portfolio.create(portfolio_data);
 
-			clearTimeout(timeout); // Clear the timeout if the request completes successfully
 			return R(res, true, "Art work added!", portfolio_data);
 		} catch (error) {
-			clearTimeout(timeout); // Clear the timeout on error
 			console.error(error);
 			return R(res, false, "Error adding art work!", error);
 		}
@@ -5670,10 +5663,6 @@ const timeout = setTimeout(() => {
 
 		console.log("body:", body)
 		console.log("id", id)
-
-		const timeout = setTimeout(() => {
-			res.status(408).send('Request timed out');
-		}, 40000); // 1 minute
 
 		try {
 
@@ -5746,14 +5735,11 @@ const timeout = setTimeout(() => {
 
 
 				await user_portfolio?.update(edit);
-
-			clearTimeout(timeout); // Clear the timeout if the request completes successfully
 				return R(res, true, "Art work updated!", user_portfolio);
 			}
 
 
 		} catch (error) {
-			clearTimeout(timeout); // Clear the timeout on error
 			console.log(error)
 			return R(res, false, "Error editing art work!", error);
 		}
@@ -6248,5 +6234,51 @@ const timeout = setTimeout(() => {
 
 
 	}),
+
+
+	update_art_jobs: asyncWrapper(async (req: UserAuthRequest, res: Response) => {
+		// Get project ID from query
+		let project_id = req.query?.id;
+		console.log("projects id is",project_id)
+		if (!project_id) {
+			return R(res, false, "No Project ID Found");
+		}
+	
+		// Find the project by its ID
+		let project = await models.projects.findByPk(project_id.toString());
+		if (!project) {
+			return R(res, false, "No Project Found");
+		}
+	
+		// Map fields from request body
+		let data = req.body;
+		data["title"] = data.project_name;  // Update title from request body
+		data["description"] = data.description;  // Update description
+		data["category"] = data.category;  // Update category field from request body
+	
+		// File upload logic (if needed)
+		// if (req.files?.file) {
+		// 	let file = await uploadbidfile(req, res);
+		// 	let concatenatedData = file.join(',');
+		// 	if (project.bid_file) {
+		// 		project.update({ bid_file: Sequelize.literal(`concat(bid_file, ',', '${concatenatedData}')`) });
+		// 	} else {
+		// 		project.update({ bid_file: concatenatedData });
+		// 	}
+		// }
+	
+		// Update project with the new data
+		await project.update({
+			project_name: data.title,
+			description: data.description,
+			category: data.category,  
+		});
+	
+		console.log("Files are:", req.files);
+	
+		return R(res, true, "Project updated successfully", project);
+	}),
+	
+	
 
 };

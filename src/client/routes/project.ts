@@ -76,6 +76,7 @@ router.post("/add-temp", cn.add_temp);
 router.post("/add-bid", cn.add_bid);
 
 router.post("/update-bid", cn.update_bid);
+router.post("/update-art-jobs", cn.update_art_jobs);
 
 router.post("/send-msg", cn.send_msg);
 
