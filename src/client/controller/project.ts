@@ -3109,9 +3109,9 @@ export default {
 		if (req.files?.file2 != undefined) {
 			let file2 = await uploadMachiningFile(req, res);
 			//console.log("name after mod:- ", file2)
-			let concatenatedData = file2.join(',');
+			var concatenatedData2 = file2.join(',');
 
-			data["machine_parts_image"] = concatenatedData;
+			data["machine_parts_image"] = concatenatedData2;
 		}
 
 
@@ -3154,7 +3154,7 @@ export default {
 				project_post_date: project.project_post_date,
 				cust_id: project?.creator_id,
 				sup_id: project.programmer_id,
-				attach_file: concatenatedData,
+				attach_file: concatenatedData2,
 				upload_date: new Date(),
 				approved: 1,
 				country_code: 0,
@@ -3169,7 +3169,7 @@ export default {
 			let concatenatedData = file2.join(',');
 
 
-			proj_img.update({ attach_file: Sequelize.literal(`concat(attach_file, ',', '${concatenatedData}')`) })
+			proj_img.update({ attach_file: Sequelize.literal(`concat(attach_file, ',', '${concatenatedData2}')`) })
 			//return R(res, true, "Confirmation sent", proj_img)
 		}
 
@@ -5549,13 +5549,6 @@ export default {
 
 	add_art_work: asyncWrapper(async (req: UserAuthRequest, res: Response) => {
 
-
-// Set a timeout for this specific request
-const timeout = setTimeout(() => {
-	res.status(408).send('Request timed out');
-}, 40000); // 1 minutes
-
-
 		let data = await Validate(
 			res,
 			["title", "description", "category"],
@@ -5604,10 +5597,8 @@ const timeout = setTimeout(() => {
 
 			await models.portfolio.create(portfolio_data);
 
-			clearTimeout(timeout); // Clear the timeout if the request completes successfully
 			return R(res, true, "Art work added!", portfolio_data);
 		} catch (error) {
-			clearTimeout(timeout); // Clear the timeout on error
 			console.error(error);
 			return R(res, false, "Error adding art work!", error);
 		}
@@ -5670,10 +5661,6 @@ const timeout = setTimeout(() => {
 
 		console.log("body:", body)
 		console.log("id", id)
-
-		const timeout = setTimeout(() => {
-			res.status(408).send('Request timed out');
-		}, 40000); // 1 minute
 
 		try {
 
@@ -5746,14 +5733,11 @@ const timeout = setTimeout(() => {
 
 
 				await user_portfolio?.update(edit);
-
-			clearTimeout(timeout); // Clear the timeout if the request completes successfully
 				return R(res, true, "Art work updated!", user_portfolio);
 			}
 
 
 		} catch (error) {
-			clearTimeout(timeout); // Clear the timeout on error
 			console.log(error)
 			return R(res, false, "Error editing art work!", error);
 		}
@@ -6248,5 +6232,8 @@ const timeout = setTimeout(() => {
 
 
 	}),
+
+
+
 
 };
