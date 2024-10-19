@@ -6301,9 +6301,7 @@ export default {
 	
 		await project?.destroy();
 
-		return R(res, true, "Project updated successfully", project);
+		return R(res, true, "Project deleted successfully");
 	}),
-
-
 
 };
