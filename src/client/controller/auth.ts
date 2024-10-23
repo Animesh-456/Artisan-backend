@@ -90,8 +90,9 @@ export default {
 						"string.pattern.base":
 							"Password must contains at least 6 characters, including UPPER or lowercase with numbers.",
 					}),
-				SIREN: Joi.required(),
+				siren: Joi.required(),
 				company_name: Joi.required(),
+				company_number: Joi.required(),
 				pro_user: Joi.required(),
 				show_modal: Joi.required(),
 				mobile_number: Joi.number().required()
@@ -128,7 +129,7 @@ export default {
 				data["pro_user"] = 1
 			}
 
-			data["siren"] = req.body.SIREN
+			data["siren"] = req.body.siren
 
 			data["role_id"] = 1;
 			data["created"] = moment().unix();
