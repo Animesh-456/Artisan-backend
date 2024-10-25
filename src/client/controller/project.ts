@@ -6304,4 +6304,205 @@ export default {
 		return R(res, true, "Project deleted successfully");
 	}),
 
+
+
+
+
+
+	review_projects2: asyncWrapper(async (req: UserAuthRequest, res: Response) => {
+
+		const opt = {
+			page: parseInt(req.query.page?.toString() || "0"),
+			limit: parseInt(req.query.limit?.toString() || "10"),
+			//user_id: req.query.user_id?.toString() || null,
+			search: req.query.search?.toString() || ""
+		};
+
+		console.log("srarch key ----------------->>>>>", opt.search);
+		
+
+
+		if (opt.search == "") {
+
+			const projects = await models.projects.findAndCountAll({
+				where: {
+					project_status: 5,
+					country_code: 2
+				},
+				include: [
+					{
+						model: models.reviews,
+						as: "reviews",
+						where: {
+							project_id: { [Op.col]: "projects.id" },
+						},
+
+					},
+					{
+						model: models.project_images,
+						as: "project_images",
+						where: {
+							project_id: { [Op.col]: "projects.id" },
+						},
+						required: false,
+					},
+					{
+						model: models.users,
+						as: "creator",
+						attributes: ["email", "user_name"],
+						required: false,
+					},
+					{
+						model: models.transactions,
+						as: "transactions",
+						where: {
+
+							project_id: { [Op.col]: "projects.id" },
+
+						},
+						attributes: ["amount", "amount_gbp"],
+
+
+					}
+
+
+
+				],
+				limit: opt.limit,
+				offset: opt.page * opt.limit,
+				order: [["project_post_format_date", "DESC"]],
+
+			})
+
+			let list = projects.rows;
+			let count = projects.count;
+
+			//console.log("no search result ---------->>>>", list);
+			
+			
+
+			return R(res, true, "Reviewed projects", list, {
+				current_page: opt.page,
+				total_count: count,
+				total_pages: Math.floor(count / opt.limit),
+			});
+
+		}
+		else {
+
+			//console.log("enytrut");
+
+			opt.search = (opt.search).trim()
+			
+
+			const searchArray = (opt.search).split(" ");
+
+			let searchResult: any[] = [];
+
+			let finalResult: any[] = [];
+
+
+			for (let x in searchArray) {
+
+				const el = searchArray[x];
+
+				console.log("el search ------>>>>>>", el);
+				
+
+				const projects = await models.projects.findAll({
+					where: {
+						project_status: 5,
+						country_code: 2,
+						project_name: {
+							[Op.substring]: el
+						},
+
+					},
+					include: [
+						{
+							model: models.reviews,
+							as: "reviews",
+							where: {
+								project_id: { [Op.col]: "projects.id" },
+							},
+
+						},
+						{
+							model: models.project_images,
+							as: "project_images",
+							where: {
+								project_id: { [Op.col]: "projects.id" },
+							},
+							required: false,
+						},
+						{
+							model: models.users,
+							as: "creator",
+							attributes: ["email", "user_name"],
+							required: false,
+						},
+						{
+							model: models.transactions,
+							as: "transactions",
+							where: {
+
+								project_id: { [Op.col]: "projects.id" },
+
+							},
+							attributes: ["amount", "amount_gbp"],
+
+
+						}
+
+
+
+					],
+					limit: opt.limit,
+					offset: opt.page * opt.limit,
+					order: [["project_post_format_date", "DESC"]],
+				})
+
+				//console.log("result projects", projects.length);
+				
+				if(projects.length>0)
+				searchResult.push(projects)
+
+			}
+
+			for(let x in searchResult){
+				for( let y in searchResult[x]){
+					finalResult.push(searchResult[x][y]);
+				}
+			}
+
+
+
+			let count = finalResult.length;
+
+			//console.log("search result type ---->>", finalResult);
+			
+
+			//console.log("final results -------------->>>", finalResult);
+			
+
+			return R(res, true, "Reviewed projects", finalResult, {
+				current_page: opt.page,
+				total_count: count,
+				total_pages: Math.floor(count / opt.limit),
+			});
+
+
+
+
+
+
+
+
+		}
+
+
+
+
+	}),
+
 };

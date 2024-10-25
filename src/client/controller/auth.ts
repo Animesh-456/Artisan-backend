@@ -753,7 +753,7 @@ export default {
 		}
 
 		data["country_code"] = country.id;
-		data["country_symbol"] = country.country_symbol;
+		data["country_symbol"] = data?.country_symbol;
 
 		if (user?.role_id == 2) {
 			data["service_desc"] = req.body.service_desc;

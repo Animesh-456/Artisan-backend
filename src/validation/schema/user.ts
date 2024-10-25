@@ -15,8 +15,9 @@ export default {
 		company_name: Joi.required(),
 		siren: Joi.required(),
 		prof_pic: Joi.required(),
-		prot_pic: Joi.required(), 
-		category: Joi.required(),	
+		prot_pic: Joi.required(),
+		category: Joi.required(),
+		country_symbol: Joi.required(),	
 	},
 	editAddress: {
 		name: Joi.string().required(),
