@@ -1607,6 +1607,66 @@ export default {
 
 	}),
 
+	google_register: asyncWrapper(async (req: UserAuthRequest, res: Response) => {
+
+		console.log("body console", req.body)
+		const decoded: any = jwt.decode(req.body.token);
+		// return R(res, true, "Registered", u);
+
+
+		const address = req.body.address;
+		const hash = crypto.createHash('md5');
+		hash.update(req?.body.password);
+		const hashedPassword = hash.digest('hex');
+		const name = decoded.given_name;
+		const lname = decoded.family_name
+		const email = decoded.email;
+		const number = req.body.number;
+
+		function generateRandomUsername(length = 8) {
+			const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+			let username = '';
+
+			for (let i = 0; i < length; i++) {
+				const randomIndex = Math.floor(Math.random() * characters.length);
+				username += characters[randomIndex];
+			}
+
+			return username;
+		}
+
+		// Example usage:
+		const randomUsername = generateRandomUsername();
+		console.log("randomUsername", randomUsername);
+
+		const existingUser = await models.users.findOne({ where: { email } });
+		if (existingUser) {
+			return R(res, false, "User already exists. Please try again with a different email.");
+		}
+		const schema: any = {
+			role_id: req.body.account === 'Customer' ? 1 : 2,
+			account: 'Individual',
+			name: name,
+			surname: lname,
+			user_name: randomUsername,
+			email: email,
+			password: hashedPassword,
+			address1: address,
+			siren: '',
+			company_name: '',
+			company_number: '',
+			pro_user: 0,
+			show_modal: 0,
+			mobile_number: number,
+			emailVerified: 1,
+			country_code: 2,
+		}
+
+
+		let user = await models.users.create(schema);
+		return R(res, true, "Registered", user);
+	}),
+
 };
 
 

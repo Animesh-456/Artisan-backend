@@ -60,6 +60,8 @@ const ignorePaths = [
 	"/user/project/delete-art",
 	"/user/auth/verify-email",
 	"/user/auth/resend-verify-email",
+	"/user/auth/google-register",
+
 	// "/user/project/add-art-work",
 	// "/user/webhook/deposit-fund",
 ];
