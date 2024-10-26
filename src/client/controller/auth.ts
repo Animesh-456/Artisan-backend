@@ -451,7 +451,7 @@ export default {
 
 			const verificationLink = `${backendURL}user/auth/verify-email?token=${verifyToken}`;
 
-			
+
 
 
 			// send mail function
@@ -1666,6 +1666,8 @@ export default {
 		let user = await models.users.create(schema);
 		return R(res, true, "Registered", user);
 	}),
+
+
 
 };
 
