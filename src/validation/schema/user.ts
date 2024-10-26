@@ -13,6 +13,7 @@ export default {
 		service_desc: Joi.required(),
 		tva: Joi.required(),
 		company_name: Joi.required(),
+		company_number: Joi.required(),
 		siren: Joi.required(),
 		prof_pic: Joi.required(),
 		prot_pic: Joi.required(),
