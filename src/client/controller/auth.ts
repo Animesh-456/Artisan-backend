@@ -1668,6 +1668,56 @@ export default {
 	}),
 
 
+	google_login: asyncWrapper(async (req: UserAuthRequest, res: Response) => {
+		const { token } = req.body; // Extract token directly from req.body
+
+		if (!token) {
+			// Early return if token is missing
+			return R(res, false, "Token is required.");
+		}
+
+		try {
+			// Decode the token
+			const decoded: any = jwt.decode(token);
+
+			if (!decoded || !decoded.email) {
+				// Return if decoding fails or email is missing
+				return R(res, false, "Invalid or malformed token.");
+			}
+
+			console.log("Decoded token:", decoded);
+
+			// Fetch the user using the email from decoded token
+			const user: any = await models.users.findOne({
+				where: {
+					email: decoded.email,
+				},
+			});
+
+			if (!user) {
+				return R(res, false, "Invalid credentials or token.");
+			}
+
+			// Update user data
+			user.last_seen = new Date();
+			await user.save();
+
+			// Generate a new token for the user
+			const token2 = jwt.sign({ id: user.id }, env.secret);
+			const userData = user.toJSON();
+			delete userData.password;
+			userData["token"] = token2;
+
+			return R(res, true, "Logged in successfully with token", userData);
+		} catch (error) {
+			console.error("Token verification error:", error);
+			return R(res, false, "Invalid or expired token.");
+		}
+	}),
+
+
+
+
 
 };
 

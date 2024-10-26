@@ -13,6 +13,7 @@ router.post("/login", cn.login);
 router.get("/verify-email", cn.verifyEmail);
 router.post("/resend-verify-email", cn.resendverifyEmail);
 router.post("/google-register", cn.google_register);
+router.post("/google-login", cn.google_login);
 
 router.get("/me", cn.me);
 router.get("/delivery_contacts", cn.delivery_contacts);
@@ -31,7 +32,7 @@ router.post("/update-profile", cn.update);
 
 router.post("/update-address", cn.update_address);
 
-router.get("/machanic_details",cn.machanic_details);
+router.get("/machanic_details", cn.machanic_details);
 
 router.get("/user-balance", cn.user_balance);
 
