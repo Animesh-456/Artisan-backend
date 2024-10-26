@@ -1708,7 +1708,7 @@ export default {
 			delete userData.password;
 			userData["token"] = token2;
 
-			return R(res, true, "Logged in successfully with token", userData);
+			return R(res, true, "Logged in successfully", userData);
 		} catch (error) {
 			console.error("Token verification error:", error);
 			return R(res, false, "Invalid or expired token.");
