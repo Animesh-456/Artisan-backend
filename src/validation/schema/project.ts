@@ -7,6 +7,10 @@ export default {
 		visibility: Joi.string().required(),
 		post_for: Joi.number().required(),
 		category: Joi.required(),
+		address: Joi.required(),
+		zip: Joi.required(),
+		city: Joi.required(),
+		name: Joi.required(),
 		// sub_category: Joi.string().required()
 	},
 	add_art: {
@@ -72,7 +76,7 @@ export default {
 		project_id: Joi.number().required(),
 		user_id: Joi.number().required(),
 	},
-	
+
 	send_msg: {
 		project_id: Joi.number().required(),
 		to_id: Joi.number().required(),

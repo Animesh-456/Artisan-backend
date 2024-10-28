@@ -942,12 +942,13 @@ export default {
 		console.log("add hitting....")
 		let data = await Validate(
 			res,
-			["project_name", "description", "visibility", "post_for", "category"],
+			["project_name", "description", "visibility", "post_for", "category", "name", "address", "zip", "city"],
 			schema.project.addProject,
 			req.body,
 			{},
 		);
 		console.log("data for project----->>", data)
+
 
 		let user = await models.users.findOne({
 			where: {
@@ -1034,7 +1035,24 @@ export default {
 		// project_exp_date = YYYY MM DD
 
 		let project = await models.projects.create(data);
-		console.log("going..")
+		//console.log("going..")
+
+
+
+		// Shipping Details
+
+		const shipping = {
+			user_id: user?.id,
+			project_id: project?.id,
+			name: data?.name || "",
+			address: data?.address || "",
+			postalcode: data?.zip || "",
+			city: data?.city || "",
+		}
+
+
+		await models.delivery_contacts.create(shipping);
+
 
 
 		let providers = await models.users.findAll({
@@ -6262,7 +6280,7 @@ export default {
 		data["description"] = data.description;  // Update description
 		data["category"] = data.category;  // Update category field from request body
 
-	
+
 		var concatenatedData;
 
 		if (req?.files?.file && !data?.existingFiles) {
@@ -6283,6 +6301,35 @@ export default {
 			attachment_name: concatenatedData
 		});
 
+
+		let shippingDetails = await models.delivery_contacts.findOne({
+			where: {
+				project_id: project?.id
+			}
+		})
+
+
+		if (!shippingDetails) {
+			const shipping: any = {
+				user_id: project?.creator_id,
+				project_id: project?.id,
+				name: data?.name || "",
+				address: data?.address || "",
+				postalcode: data?.zip || "",
+				city: data?.city || "",
+			}
+
+
+			await models.delivery_contacts.create(shipping);
+		} else {
+
+			await shippingDetails.update({
+				name: data?.name || "",
+				address: data?.address || "",
+				postalcode: data?.zip || "",
+				city: data?.city || "",
+			});
+		}
 		return R(res, true, "Project updated successfully", project);
 	}),
 
@@ -6298,7 +6345,7 @@ export default {
 		if (!project) {
 			return R(res, false, "No Project Found");
 		}
-	
+
 		await project?.destroy();
 
 		return R(res, true, "Project deleted successfully");
@@ -6319,7 +6366,7 @@ export default {
 		};
 
 		console.log("srarch key ----------------->>>>>", opt.search);
-		
+
 
 
 		if (opt.search == "") {
@@ -6378,8 +6425,8 @@ export default {
 			let count = projects.count;
 
 			//console.log("no search result ---------->>>>", list);
-			
-			
+
+
 
 			return R(res, true, "Reviewed projects", list, {
 				current_page: opt.page,
@@ -6393,7 +6440,7 @@ export default {
 			//console.log("enytrut");
 
 			opt.search = (opt.search).trim()
-			
+
 
 			const searchArray = (opt.search).split(" ");
 
@@ -6407,7 +6454,7 @@ export default {
 				const el = searchArray[x];
 
 				console.log("el search ------>>>>>>", el);
-				
+
 
 				const projects = await models.projects.findAll({
 					where: {
@@ -6463,14 +6510,14 @@ export default {
 				})
 
 				//console.log("result projects", projects.length);
-				
-				if(projects.length>0)
-				searchResult.push(projects)
+
+				if (projects.length > 0)
+					searchResult.push(projects)
 
 			}
 
-			for(let x in searchResult){
-				for( let y in searchResult[x]){
+			for (let x in searchResult) {
+				for (let y in searchResult[x]) {
 					finalResult.push(searchResult[x][y]);
 				}
 			}
@@ -6480,10 +6527,10 @@ export default {
 			let count = finalResult.length;
 
 			//console.log("search result type ---->>", finalResult);
-			
+
 
 			//console.log("final results -------------->>>", finalResult);
-			
+
 
 			return R(res, true, "Reviewed projects", finalResult, {
 				current_page: opt.page,
