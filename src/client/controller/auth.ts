@@ -697,7 +697,7 @@ export default {
 		let user = await models.delivery_contacts.findOne({
 			where: {
 				project_id: id,
-				user_id: project?.creator_id,
+				// user_id: project?.creator_id,
 
 			},
 

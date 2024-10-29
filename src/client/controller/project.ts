@@ -6319,8 +6319,9 @@ export default {
 				city: data?.city || "",
 			}
 
-
+			
 			await models.delivery_contacts.create(shipping);
+			return R(res, true, "Project updated successfully", project);
 		} else {
 
 			await shippingDetails.update({
@@ -6329,8 +6330,10 @@ export default {
 				postalcode: data?.zip || "",
 				city: data?.city || "",
 			});
+
+			return R(res, true, "Project updated successfully", project);
 		}
-		return R(res, true, "Project updated successfully", project);
+
 	}),
 
 	delete_art: asyncWrapper(async (req: UserAuthRequest, res: Response) => {
