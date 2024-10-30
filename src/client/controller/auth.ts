@@ -1716,7 +1716,11 @@ export default {
 	}),
 
 
+	facebook_register: asyncWrapper(async (req: UserAuthRequest, res: Response) => {
 
+		console.log("facebook body console", req.body)
+
+	}),
 
 
 };
