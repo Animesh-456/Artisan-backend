@@ -14,7 +14,8 @@ router.get("/verify-email", cn.verifyEmail);
 router.post("/resend-verify-email", cn.resendverifyEmail);
 router.post("/google-register", cn.google_register);
 router.post("/google-login", cn.google_login);
-router.post("/facebook/callback", cn.facebook_register);
+router.post("/facebook-login", cn.facebook_login);
+router.post("/facebook-callback", cn.facebook_register);
 
 router.get("/me", cn.me);
 router.get("/delivery_contacts", cn.delivery_contacts);
