@@ -1718,7 +1718,29 @@ export default {
 
 	facebook_register: asyncWrapper(async (req: UserAuthRequest, res: Response) => {
 
-		console.log("facebook body console", req.body)
+		const { accessToken } = req.body;
+
+		try {
+			// Fetch user details from Facebook Graph API
+			const response = await fetch(`https://graph.facebook.com/me?fields=id,name,email&access_token=${accessToken}`);
+			const userData = await response.json();
+
+			if (userData.error) {
+				return res.status(400).json({ error: userData.error.message });
+			}
+
+			// At this point, userData contains user information
+			console.log('User Data:', userData);
+
+			// You can now store user data in your database or perform any other logic
+			// Example: Save user data to your database
+			// await saveUserToDatabase(userData);
+
+			return R(res, true, "Registered successfully", userData);; // Send user data back to the frontend
+		} catch (error) {
+			console.error('Error fetching user data from Facebook:', error);
+			return R(res, false, "Invalid or expired token.");
+		}
 
 	}),
 
