@@ -1717,31 +1717,131 @@ export default {
 
 
 	facebook_register: asyncWrapper(async (req: UserAuthRequest, res: Response) => {
+		const { token, address, password, account, number } = req.body;
 
-		const { accessToken } = req.body;
+		console.log("Request body:", req.body);
+
+		if (!token) {
+			console.error("Access token missing in request body.");
+			return res.status(400).json({ error: "Access token is required." });
+		}
 
 		try {
 			// Fetch user details from Facebook Graph API
-			const response = await fetch(`https://graph.facebook.com/me?fields=id,name,email&access_token=${accessToken}`);
+			const response = await fetch(`https://graph.facebook.com/me?fields=id,name,email&access_token=${token}`);
 			const userData = await response.json();
 
+			// Log if the Facebook API returns an error
 			if (userData.error) {
+				console.error("Facebook API error:", userData.error.message);
 				return res.status(400).json({ error: userData.error.message });
 			}
 
-			// At this point, userData contains user information
-			console.log('User Data:', userData);
+			// Hash the password
+			const hash = crypto.createHash('md5');
+			hash.update(password);
+			const hashedPassword = hash.digest('hex');
 
-			// You can now store user data in your database or perform any other logic
-			// Example: Save user data to your database
-			// await saveUserToDatabase(userData);
+			// Generate a random username using a function expression
+			const generateRandomUsername = (length = 8) => {
+				const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+				let username = '';
+				for (let i = 0; i < length; i++) {
+					const randomIndex = Math.floor(Math.random() * characters.length);
+					username += characters[randomIndex];
+				}
+				return username;
+			};
+			const randomUsername = generateRandomUsername();
 
-			return R(res, true, "Registered successfully", userData); // Send user data back to the frontend
-		} catch (error) {
-			console.error('Error fetching user data from Facebook:', error);
+			// Check if the user already exists
+			const existingUser = await models.users.findOne({ where: { email: userData.email } });
+			if (existingUser) {
+				console.log("User with this email already exists:", userData.email);
+				return R(res, false, "User already exists. Please try again with a different email.");
+			}
+
+			// Create new user
+			const schema: any = {
+				role_id: account === 'Customer' ? 1 : 2,
+				account: 'Individual',
+				name: userData.name,
+				surname: "",
+				user_name: randomUsername,
+				email: userData.email,
+				password: hashedPassword,
+				address1: address,
+				siren: '',
+				company_name: '',
+				company_number: '',
+				pro_user: 0,
+				show_modal: 0,
+				mobile_number: number,
+				emailVerified: 1,
+				country_code: 2,
+			};
+
+			const user = await models.users.create(schema);
+
+			console.log('User created successfully:', user);
+			return R(res, true, "Registered successfully", user);
+		} catch (error: any) {
+			console.error('Error fetching user data from Facebook:', error.message);
 			return R(res, false, "Invalid or expired token.");
 		}
+	}),
 
+
+
+
+	facebook_login: asyncWrapper(async (req: UserAuthRequest, res: Response) => {
+		const { accessToken } = req.body; // Extract token directly from req.body
+		console.log("facebook login", req.body);
+
+		if (!accessToken) {
+			// Early return if token is missing
+			return R(res, false, "Token is required.");
+		}
+
+		try {
+			// Decode the token
+			const response = await fetch(`https://graph.facebook.com/me?fields=id,name,email&access_token=${accessToken}`);
+			const decoded: any = await response.json()
+			console.log("Decoded token:", decoded);
+
+
+			if (!decoded || !decoded.email) {
+				// Return if decoding fails or email is missing
+				return R(res, false, "Invalid or malformed token.");
+			}
+
+
+			// Fetch the user using the email from decoded token
+			const user: any = await models.users.findOne({
+				where: {
+					email: decoded.email,
+				},
+			});
+
+			if (!user) {
+				return R(res, false, "Invalid credentials or token.");
+			}
+
+			// Update user data
+			user.last_seen = new Date();
+			await user.save();
+
+			// Generate a new token for the user
+			const token2 = jwt.sign({ id: user.id }, env.secret);
+			const userData = user.toJSON();
+			delete userData.password;
+			userData["token"] = token2;
+
+			return R(res, true, "Logged in successfully", userData);
+		} catch (error) {
+			console.error("Token verification error:", error);
+			return R(res, false, "Invalid or expired token.");
+		}
 	}),
 
 
