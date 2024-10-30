@@ -1736,7 +1736,7 @@ export default {
 			// Example: Save user data to your database
 			// await saveUserToDatabase(userData);
 
-			return R(res, true, "Registered successfully", userData);; // Send user data back to the frontend
+			return R(res, true, "Registered successfully", userData); // Send user data back to the frontend
 		} catch (error) {
 			console.error('Error fetching user data from Facebook:', error);
 			return R(res, false, "Invalid or expired token.");
