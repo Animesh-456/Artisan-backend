@@ -63,6 +63,7 @@ const ignorePaths = [
 	"/user/auth/google-register",
 	"/user/auth/facebook-callback",
 	"/user/auth/facebook-login",
+	"/user/auth/delivery_contacts"
 
 	// "/user/project/add-art-work",
 	// "/user/webhook/deposit-fund",
