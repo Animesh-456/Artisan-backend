@@ -17,6 +17,8 @@ import crypto from 'crypto';
 import mail from "@config/mail";
 import { createVerificationToken } from "@helpers/emailVerification";
 
+import { sendOtp, verifyOtp } from '@helpers/twilioService';
+
 export default {
 	test: asyncWrapper(async (req: UserAuthRequest, res: Response) => {
 		return R(res, true, "Test Route from Auth");
@@ -124,6 +126,19 @@ export default {
 			if (userExist > 0) {
 				return R(res, false, "Username or Email already exists");
 			}
+
+			// Logic for validating duplicate mobile_number
+
+			let userExist2 = await models.users.count({
+				where: {
+					mobile_number: data?.mobile_number
+				},
+			});
+
+			if (userExist2 > 0) {
+				return R(res, false, "Mobile number already exists");
+			}
+
 
 			if (req.body.pro_user == 1) {
 				data["pro_user"] = 1
@@ -285,6 +300,18 @@ export default {
 
 			if (userExist > 0) {
 				return R(res, false, "Username or Email already exists");
+			}
+
+			// Logic for validating duplicate mobile_number
+
+			let userExist2 = await models.users.count({
+				where: {
+					mobile_number: data?.mobile_number
+				},
+			});
+
+			if (userExist2 > 0) {
+				return R(res, false, "Mobile number already exists");
 			}
 
 			data["role_id"] = 2;
@@ -1841,6 +1868,239 @@ export default {
 		} catch (error) {
 			console.error("Token verification error:", error);
 			return R(res, false, "Invalid or expired token.");
+		}
+	}),
+
+
+
+
+
+	// For sending mobile OTP
+	OTP_send: asyncWrapper(async (req: UserAuthRequest, res: Response) => {
+		const { phoneNumber } = req.body;
+
+		const OTP_REQUEST_LIMIT_MS = 60 * 1000;
+
+		try {
+			// Logic for rate limiting to limit sending otp's
+
+			const user = await models.users.findOne({
+				where: {
+					mobile_number: phoneNumber
+				}
+			})
+
+			if (!user) return R(res, false, 'No user found');
+
+			if (user?.lastMobileOtpSentAt) {
+				const timeSinceLastOtp = Date.now() - new Date(user.lastMobileOtpSentAt).getTime();
+				if (timeSinceLastOtp < OTP_REQUEST_LIMIT_MS) {
+					return R(res, false, 'OTP already sent. Please wait a minute before requesting a new one.');
+				}
+			}
+
+
+			user.lastMobileOtpSentAt = new Date();
+			await user.save();
+			await sendOtp(phoneNumber);
+			return R(res, true, "OTP sent successfully");
+		} catch (error) {
+			return R(res, false, "Error sending OTP");
+		}
+	}),
+
+
+
+	// For login with mobile OTP 
+	OTP_verify: asyncWrapper(async (req: UserAuthRequest, res: Response) => {
+		const { phoneNumber, code } = req.body;
+
+		try {
+
+			const user: any = await models.users.findOne({
+				where: {
+					mobile_number: phoneNumber
+				}
+			})
+
+			if (!user) return R(res, false, "No user found with this email");
+
+
+			const isVerified = await verifyOtp(phoneNumber, code);
+			if (isVerified) {
+
+				user.mobileVerified = 1;
+				await user.save();
+
+				const token2 = jwt.sign({ id: user.id }, env.secret);
+				const userData: any = user.toJSON();
+				delete userData.password;
+				userData["token"] = token2;
+				return R(res, true, "OTP verified successfully", token2);
+			} else {
+				return R(res, false, "Invalid OTP");
+			}
+		} catch (error) {
+			return R(res, false, "Error validating OTP");
+		}
+	}),
+
+
+	// Write api for updating mobile number
+
+
+
+
+
+
+
+
+	email_OTP_send: asyncWrapper(async (req: UserAuthRequest, res: Response) => {
+		const { email } = req.body;
+		const OTP_REQUEST_LIMIT_MS = 60 * 1000;
+		try {
+			const user = await models.users.findOne({
+				where: {
+					email: email
+				}
+			})
+
+			if (!user) return R(res, false, "No user found with this email");
+
+			// Rate limiting logic for email OTP
+
+			if (user?.lastEmailOtpSentAt) {
+				const timeSinceLastOtp = Date.now() - new Date(user?.lastEmailOtpSentAt).getTime();
+				if (timeSinceLastOtp < OTP_REQUEST_LIMIT_MS) {
+					return R(res, false, 'OTP already sent. Please wait a minute before requesting a new one.');
+				}
+			}
+
+			user.lastEmailOtpSentAt = new Date();
+			await user.save();
+
+			const otp = await Math.floor(100000 + Math.random() * 900000).toString().slice(0, length);
+
+			const otpToken = await jwt.sign({ otp, email }, env.secret, { expiresIn: '5m' });
+
+			// Send OTP via email logic below
+
+			const api_data_rep: object = {
+				"!OTP": otp,
+			}
+
+			let task_id = 189;
+
+			const mailData = await models.email_templates.findOne({
+				where: {
+					id: task_id,
+					country_code: "en"
+				},
+				attributes: ["title", "mail_subject", "mail_body"],
+			});
+
+			var body = mailData?.mail_body;
+			var title = mailData?.title;
+			var subject = mailData?.mail_subject;
+
+			(Object.keys(api_data_rep) as (keyof typeof api_data_rep)[]).forEach(key => {
+				if (body?.includes(key)) {
+					var re = new RegExp(key, 'g');
+					body = body.replace(re, api_data_rep[key])
+				}
+
+				if (title?.includes(key)) {
+					var re = new RegExp(key, 'g');
+					title = title.replace(re, api_data_rep[key])
+				}
+
+				if (subject?.includes(key)) {
+					var re = new RegExp(key, 'g');
+					subject = subject.replace(re, api_data_rep[key])
+				}
+
+
+
+
+			});
+
+
+			(Object.keys(site_mail_data) as (keyof typeof site_mail_data)[]).forEach(key => {
+
+
+				if (body?.includes(key)) {
+
+					var re = new RegExp(key, 'g');
+
+					body = body.replace(re, site_mail_data[key])
+				}
+
+				if (title?.includes(key)) {
+					var re = new RegExp(key, 'g');
+					title = title.replace(re, site_mail_data[key])
+				}
+
+				if (subject?.includes(key)) {
+					var re = new RegExp(key, 'g');
+					subject = subject.replace(re, site_mail_data[key])
+				}
+			})
+
+			sendMail({ to: user?.email, subject, body });
+
+			return R(res, true, "OTP sent successfully", otpToken);
+		} catch (error) {
+			return R(res, false, "Error sending OTP");
+		}
+	}),
+
+
+
+
+	email_OTP_verify: asyncWrapper(async (req: UserAuthRequest, res: Response) => {
+		const { email, otp } = req.body;
+
+		if (!email || !otp) {
+			return R(res, false, "Email and OTP is required");
+		}
+
+		try {
+
+			const user = await models.users.findOne({
+				where: {
+					email: email
+				}
+			})
+
+			if (!user) {
+				return R(res, false, "Invalid user");
+			}
+			// Retrieve and decode the JWT token
+			const token = req.headers.authorization?.split(' ')[1]; // Assume JWT is passed as a Bearer token
+
+			if (!token) {
+				return R(res, false, "Invalid token");
+			}
+
+			const decoded = jwt.verify(token, env.secret) as { otp: string, email: string };
+
+			if (decoded.email === email && decoded.otp === otp) {
+
+				await user?.update({
+					emailVerified: 1
+				})
+
+				// Login token generate
+				const token2 = jwt.sign({ id: user.id }, env.secret);
+				const userData: any = user.toJSON();
+				delete userData.password;
+				userData["token"] = token2;
+				return R(res, true, "OTP verified successfuly", token2);
+			} else {
+				return R(res, false, "Invalid/Expired OTP. Please try again after sometime");
+			}
+		} catch (error) {
+			return R(res, false, "Invalid/Expired OTP. Please try again after sometime");
 		}
 	}),
 

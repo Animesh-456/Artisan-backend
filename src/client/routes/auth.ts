@@ -17,6 +17,20 @@ router.post("/google-login", cn.google_login);
 router.post("/facebook-login", cn.facebook_login);
 router.post("/facebook-callback", cn.facebook_register);
 
+
+// Mobile OTP services
+
+router.post("/otp-send", cn.OTP_send);
+router.post("/otp-verify", cn.OTP_verify);
+
+
+// Email OTP services
+
+router.post("/email-otp-send", cn.email_OTP_send);
+router.post("/email-otp-verify", cn.email_OTP_verify);
+
+
+
 router.get("/me", cn.me);
 router.get("/delivery_contacts", cn.delivery_contacts);
 

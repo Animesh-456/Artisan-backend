@@ -9,7 +9,7 @@ import type { projects, projectsId } from './projects';
 import type { reviews, reviewsId } from './reviews';
 import type { transactions, transactionsId } from './transactions';
 import type { portfolio, portfolioId } from './portfolio'
-import { float } from 'aws-sdk/clients/lightsail';
+import { float, timestamp } from 'aws-sdk/clients/lightsail';
 
 export interface usersAttributes {
   id: number;
@@ -80,6 +80,9 @@ export interface usersAttributes {
   avgRating?: float;
   totalJobs?: number;
   emailVerified?: number;
+  mobileVerified?: number;
+  lastMobileOtpSentAt?: timestamp;
+  lastEmailOtpSentAt?: timestamp;
 }
 
 export type usersPk = "id";
@@ -156,6 +159,9 @@ export class users extends Model<usersAttributes, usersCreationAttributes> imple
   avgRating?: float;
   totalJobs?: number;
   emailVerified?: number;
+  mobileVerified?: number;
+  lastMobileOtpSentAt?: timestamp;
+  lastEmailOtpSentAt?: timestamp;
 
   // users belongsTo country via country_code
   country_code_country!: country;
@@ -587,6 +593,19 @@ export class users extends Model<usersAttributes, usersCreationAttributes> imple
       emailVerified: {
         type: DataTypes.INTEGER,
         defaultValue: 0
+      },
+
+      mobileVerified: {
+        type: DataTypes.INTEGER,
+        defaultValue: 0
+      },
+      lastMobileOtpSentAt: {
+        type: DataTypes.DATE,
+        defaultValue: null
+      },
+      lastEmailOtpSentAt: {
+        type: DataTypes.DATE,
+        defaultValue: null
       }
     }, {
       tableName: 'users',
