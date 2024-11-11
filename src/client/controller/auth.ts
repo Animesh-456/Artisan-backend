@@ -2141,7 +2141,7 @@ export default {
 
 				// Actual OTP SENDING LOGIC
 				try {
-					//await sendOtp(sendMoblenumber);
+					await sendOtp(sendMoblenumber);
 					return R(res, true, "OTP sent successfully");
 				} catch (e) {
 					console.error("Error sending OTP:", e);
