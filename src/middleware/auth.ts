@@ -67,8 +67,9 @@ const ignorePaths = [
 	"/user/auth/otp-send",
 	"/user/auth/otp-verify",
 	"/user/auth/email-otp-send",
-	"/user/auth/email-otp-verify"
-
+	"/user/auth/email-otp-verify",
+	"/user/auth/register-otp-send",
+	"/user/auth/register-otp-verify"
 	// "/user/project/add-art-work",
 	// "/user/webhook/deposit-fund",
 ];

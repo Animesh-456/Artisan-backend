@@ -30,6 +30,8 @@ router.post("/email-otp-send", cn.email_OTP_send);
 router.post("/email-otp-verify", cn.email_OTP_verify);
 
 
+router.post("/register-otp-send", cn.register_OTP_send);
+router.post("/register-otp-verify", cn.RegisterOTP_verify);
 
 router.get("/me", cn.me);
 router.get("/delivery_contacts", cn.delivery_contacts);

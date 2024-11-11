@@ -2106,6 +2106,88 @@ export default {
 	}),
 
 
+	register_OTP_send: asyncWrapper(async (req: UserAuthRequest, res: Response) => {
+		const { phoneNumber } = req.body;
+
+		// Log the phoneNumber to debug
+		console.log("Received phoneNumber:", phoneNumber);
+
+		// Validate the phoneNumber input
+		if (!phoneNumber) {
+			return R(res, false, "Phone number is required.");
+		}
+
+		const sendMoblenumber = `+91${phoneNumber}`;
+
+
+		try {
+			// Logic for rate limiting to limit sending otp's
+
+			const user = await models.users.findOne({
+				where: {
+					mobile_number: phoneNumber
+				}
+			});
+
+			// If there is user present
+			if (user) {
+				return R(res, false, `User with this phone number: ${phoneNumber}, already exists.`);
+				// => reject(Register), because user already preseent, display in frontend also
+			}
+
+			// User is not present, so SEND OTP
+			else {
+
+
+				// Actual OTP SENDING LOGIC
+				try {
+					await sendOtp(sendMoblenumber);
+					return R(res, true, "OTP sent successfully");
+				} catch (e) {
+					console.error("Error sending OTP:", e);
+				}
+
+			}
+
+
+
+		} catch (error) {
+			console.error("Unkown Error in registration OTP send", error)
+			return R(res, false, "Unknown error occured");
+		}
+	}),
+
+	// REGISTER VERIFY OTP
+
+	RegisterOTP_verify: asyncWrapper(async (req: UserAuthRequest, res: Response) => {
+		const { phoneNumber, code } = req.body;
+
+		const sendMoblenumber = `+91${phoneNumber}`;
+		// Validate required fields
+		if (!phoneNumber || !code) {
+			return R(res, false, "Phone number and verification code are required");
+		}
+
+		try {
+			// First verify if the OTP is valid
+			const isVerified = await verifyOtp(sendMoblenumber, code);
+
+			if (!isVerified) {
+				return R(res, false, "Invalid OTP");
+			}
+
+			// If we get here, the OTP is valid and the phone number is available
+			// Return success so the frontend can proceed with registration
+			return R(res, true, "Phone number verified successfully", {
+				phoneNumber: phoneNumber,
+				mobileVerified: 1
+			});
+
+		} catch (error) {
+			console.error("Error in RegisterOTP_verify:", error);
+			return R(res, false, "Error validating OTP");
+		}
+	}),
 };
 
 
