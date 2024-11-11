@@ -2107,7 +2107,7 @@ export default {
 
 
 	register_OTP_send: asyncWrapper(async (req: UserAuthRequest, res: Response) => {
-		const { phoneNumber, email } = req.body;
+		const { phoneNumber, email, user_name } = req.body;
 
 		// Log the phoneNumber to debug
 		console.log("Received phoneNumber:", phoneNumber);
@@ -2125,9 +2125,14 @@ export default {
 
 			const user = await models.users.findOne({
 				where: {
-					mobile_number: phoneNumber
+					[Op.or]: [
+						{ mobile_number: phoneNumber },
+						{ email: email },
+						{ user_name: user_name }
+					]
 				}
 			});
+
 
 			// If there is user present
 			if (user) {
