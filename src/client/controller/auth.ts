@@ -1902,7 +1902,8 @@ export default {
 
 			user.lastMobileOtpSentAt = new Date();
 			await user.save();
-			await sendOtp(phoneNumber);
+			const tel = `+91${phoneNumber}`
+			await sendOtp(String(tel));
 			return R(res, true, "OTP sent successfully");
 		} catch (error) {
 			return R(res, false, "Error sending OTP");
@@ -1926,7 +1927,7 @@ export default {
 			if (!user) return R(res, false, "No user found with this email");
 
 
-			const isVerified = await verifyOtp(phoneNumber, code);
+			const isVerified = await verifyOtp(`+91${phoneNumber}`, code);
 			if (isVerified) {
 
 				user.mobileVerified = 1;
@@ -1936,7 +1937,7 @@ export default {
 				const userData: any = user.toJSON();
 				delete userData.password;
 				userData["token"] = token2;
-				return R(res, true, "OTP verified successfully", token2);
+				return R(res, true, "OTP verified successfully", userData);
 			} else {
 				return R(res, false, "Invalid OTP");
 			}
@@ -2095,7 +2096,7 @@ export default {
 				const userData: any = user.toJSON();
 				delete userData.password;
 				userData["token"] = token2;
-				return R(res, true, "OTP verified successfuly", token2);
+				return R(res, true, "OTP verified successfuly", userData);
 			} else {
 				return R(res, false, "Invalid/Expired OTP. Please try again after sometime");
 			}
