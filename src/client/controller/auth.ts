@@ -2107,7 +2107,7 @@ export default {
 
 
 	register_OTP_send: asyncWrapper(async (req: UserAuthRequest, res: Response) => {
-		const { phoneNumber } = req.body;
+		const { phoneNumber, email } = req.body;
 
 		// Log the phoneNumber to debug
 		console.log("Received phoneNumber:", phoneNumber);
@@ -2141,14 +2141,13 @@ export default {
 
 				// Actual OTP SENDING LOGIC
 				try {
-					await sendOtp(sendMoblenumber);
+					//await sendOtp(sendMoblenumber);
 					return R(res, true, "OTP sent successfully");
 				} catch (e) {
 					console.error("Error sending OTP:", e);
 				}
 
 			}
-
 
 
 		} catch (error) {
