@@ -1879,11 +1879,11 @@ export default {
 	OTP_send: asyncWrapper(async (req: UserAuthRequest, res: Response) => {
 		const { phoneNumber } = req.body;
 
-		const OTP_REQUEST_LIMIT_MS = 60 * 1000;
+		const OTP_REQUEST_LIMIT_MS = 60 * 1000; // 1 minute in milliseconds
+		const IST_OFFSET_MS = 5.5 * 60 * 60 * 1000; // IST offset in milliseconds (+5:30)
 
 		try {
-			// Logic for rate limiting to limit sending otp's
-
+			// Fetch user details from the database
 			const user = await models.users.findOne({
 				where: {
 					mobile_number: phoneNumber
@@ -1892,23 +1892,41 @@ export default {
 
 			if (!user) return R(res, false, 'No user found');
 
+			// Check if the user has previously requested OTP
 			if (user?.lastMobileOtpSentAt) {
-				const timeSinceLastOtp = Date.now() - new Date(user.lastMobileOtpSentAt).getTime();
+				// Convert the stored IST time (in database) to UTC
+				const userOtpSentAtIST = new Date(user.lastMobileOtpSentAt); // IST time
+
+				// Convert IST to UTC by subtracting the IST offset (5 hours 30 minutes)
+				const userOtpSentAtUTC = new Date(userOtpSentAtIST.getTime() - IST_OFFSET_MS);
+
+				// Get the current time in UTC
+				const currentUTC = new Date();
+
+				// Calculate the time difference in milliseconds between the current UTC time and the last OTP sent time (in UTC)
+				const timeSinceLastOtp = currentUTC.getTime() - userOtpSentAtUTC.getTime();
+
+
+				// If the time difference is less than 1 minute (60,000 ms), do not send OTP
 				if (timeSinceLastOtp < OTP_REQUEST_LIMIT_MS) {
 					return R(res, false, 'OTP already sent. Please wait a minute before requesting a new one.');
 				}
 			}
 
-
+			// Update the user's last OTP sent time to the current time
 			user.lastMobileOtpSentAt = new Date();
 			await user.save();
-			const tel = `+91${phoneNumber}`
-			await sendOtp(String(tel));
+
+			const tel = `+91${phoneNumber}`;
+			await sendOtp(String(tel)); // Uncomment to actually send OTP
+
 			return R(res, true, "OTP sent successfully");
 		} catch (error) {
+			console.error("Error sending OTP:", error);
 			return R(res, false, "Error sending OTP");
 		}
 	}),
+
 
 
 
@@ -1954,7 +1972,8 @@ export default {
 	update_mobile_OTP_send: asyncWrapper(async (req: UserAuthRequest, res: Response) => {
 		const { userId, phoneNumber } = req.body;
 
-		const OTP_REQUEST_LIMIT_MS = 60 * 1000;
+		const OTP_REQUEST_LIMIT_MS = 60 * 1000; // 1 minute in milliseconds
+		const IST_OFFSET_MS = 5.5 * 60 * 60 * 1000; // IST offset in milliseconds (+5:30)
 
 		try {
 			// Logic for rate limiting to limit sending otp's
@@ -1978,7 +1997,19 @@ export default {
 
 
 			if (user?.lastMobileOtpSentAt) {
-				const timeSinceLastOtp = Date.now() - new Date(user.lastMobileOtpSentAt).getTime();
+				// Convert the stored IST time (in database) to UTC
+				const userOtpSentAtIST = new Date(user.lastMobileOtpSentAt); // IST time
+
+				// Convert IST to UTC by subtracting the IST offset (5 hours 30 minutes)
+				const userOtpSentAtUTC = new Date(userOtpSentAtIST.getTime() - IST_OFFSET_MS);
+
+				// Get the current time in UTC
+				const currentUTC = new Date();
+
+				// Calculate the time difference in milliseconds between the current UTC time and the last OTP sent time (in UTC)
+				const timeSinceLastOtp = currentUTC.getTime() - userOtpSentAtUTC.getTime();
+
+				// If the time difference is less than 1 minute (60,000 ms), do not send OTP
 				if (timeSinceLastOtp < OTP_REQUEST_LIMIT_MS) {
 					return R(res, false, 'OTP already sent. Please wait a minute before requesting a new one.');
 				}
