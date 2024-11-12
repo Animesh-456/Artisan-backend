@@ -1648,7 +1648,7 @@ export default {
 		const name = decoded.given_name;
 		const lname = decoded.family_name
 		const email = decoded.email;
-		const number = req.body.number;
+		const number = req?.body?.number || "";
 
 		function generateRandomUsername(length = 8) {
 			const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
