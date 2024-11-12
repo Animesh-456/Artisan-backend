@@ -23,6 +23,9 @@ router.post("/facebook-callback", cn.facebook_register);
 router.post("/otp-send", cn.OTP_send);
 router.post("/otp-verify", cn.OTP_verify);
 
+router.post("/update-mobile-otp-send", cn.update_mobile_OTP_send);
+router.post("/update-mobile-otp-verify", cn.update_mobile_OTP_verify);
+
 
 // Email OTP services
 

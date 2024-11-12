@@ -1951,6 +1951,84 @@ export default {
 
 
 
+	update_mobile_OTP_send: asyncWrapper(async (req: UserAuthRequest, res: Response) => {
+		const { userId, phoneNumber } = req.body;
+
+		const OTP_REQUEST_LIMIT_MS = 60 * 1000;
+
+		try {
+			// Logic for rate limiting to limit sending otp's
+
+			const user = await models.users.findOne({
+				where: {
+					id: userId
+				}
+			})
+
+			if (!user) return R(res, false, 'No user found');
+
+
+			const findMobile = await models.users.findOne({
+				where: {
+					mobile_number: phoneNumber
+				}
+			})
+
+			if (findMobile) return R(res, false, 'This mobile number already exists, please provide another number');
+
+
+			if (user?.lastMobileOtpSentAt) {
+				const timeSinceLastOtp = Date.now() - new Date(user.lastMobileOtpSentAt).getTime();
+				if (timeSinceLastOtp < OTP_REQUEST_LIMIT_MS) {
+					return R(res, false, 'OTP already sent. Please wait a minute before requesting a new one.');
+				}
+			}
+
+
+			user.lastMobileOtpSentAt = new Date();
+			await user.save();
+			const tel = `+91${phoneNumber}`
+			await sendOtp(String(tel));
+			return R(res, true, "OTP sent successfully for update");
+		} catch (error) {
+			return R(res, false, "Error sending OTP");
+		}
+	}),
+
+
+
+	// For login with mobile OTP 
+	update_mobile_OTP_verify: asyncWrapper(async (req: UserAuthRequest, res: Response) => {
+		const { phoneNumber, code, userId } = req.body;
+
+		try {
+
+			const user: any = await models.users.findOne({
+				where: {
+					id: userId
+				}
+			})
+
+			if (!user) return R(res, false, "No user found with this email");
+
+
+			const isVerified = await verifyOtp(`+91${phoneNumber}`, code);
+			if (isVerified) {
+
+				user.mobileVerified = 1;
+				user.mobile_number = phoneNumber;
+				await user.save();
+				return R(res, true, "OTP verified successfully");
+			} else {
+				return R(res, false, "Invalid OTP");
+			}
+		} catch (error) {
+			return R(res, false, "Error validating OTP");
+		}
+	}),
+
+
+
 
 
 
