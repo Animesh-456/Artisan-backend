@@ -149,6 +149,7 @@ export default {
 			data["role_id"] = 1;
 			data["created"] = moment().unix();
 			data["country_code"] = 2;
+			data["mobileVerified"] = 1;
 			const hash = crypto.createHash('md5');
 			hash.update(data?.password);
 			const hashedPassword = hash.digest('hex');
@@ -317,6 +318,7 @@ export default {
 			data["role_id"] = 2;
 			data["created"] = moment().unix();
 			data["country_code"] = 2;
+			data["mobileVerified"] = 1;
 			const hash = crypto.createHash('md5');
 			hash.update(data?.password);
 			const hashedPassword = hash.digest('hex');
@@ -1648,7 +1650,7 @@ export default {
 		const name = decoded.given_name;
 		const lname = decoded.family_name
 		const email = decoded.email;
-		const number = req?.body?.number || "";
+		// const number = req?.body?.number || "";
 
 		function generateRandomUsername(length = 8) {
 			const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -1678,13 +1680,13 @@ export default {
 			user_name: randomUsername,
 			email: email,
 			password: hashedPassword,
-			address1: address,
+			// address1: address,
 			siren: '',
 			company_name: '',
 			company_number: '',
 			pro_user: 0,
 			show_modal: 0,
-			mobile_number: number,
+			// mobile_number: number,
 			emailVerified: 1,
 			country_code: 2,
 		}
