@@ -1643,12 +1643,15 @@ export default {
 		// return R(res, true, "Registered", u);
 
 
+		console.log("decoded is ", decoded)
+
+
 		const address = req.body.address;
 		const hash = crypto.createHash('md5');
 		hash.update(req?.body.password);
 		const hashedPassword = hash.digest('hex');
 		const name = decoded.given_name;
-		const lname = decoded.family_name
+		const lname = decoded.family_name || "";
 		const email = decoded.email;
 		// const number = req?.body?.number || "";
 
@@ -1677,7 +1680,7 @@ export default {
 			account: 'Individual',
 			name: name,
 			surname: lname,
-			user_name: randomUsername,
+			user_name: email,
 			email: email,
 			password: hashedPassword,
 			// address1: address,
