@@ -28,17 +28,17 @@ export async function sendMail(
 
 	};
 
-	if (isAsync) {
-		await transporter.sendMail(mailOption, function (error, info) {
-			if (error) {
-				console.log(error);
-			} else {
-				console.log("Email sent for verification: " + info.response);
-			}
-		});
-	} else {
-		return transporter.sendMail(mailOption);
-	}
+	// if (isAsync) {
+	// 	await transporter.sendMail(mailOption, function (error, info) {
+	// 		if (error) {
+	// 			console.log(error);
+	// 		} else {
+	// 			console.log("Email sent for verification: " + info.response);
+	// 		}
+	// 	});
+	// } else {
+	// 	return transporter.sendMail(mailOption);
+	// }
 	return
 }
 
