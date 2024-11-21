@@ -240,12 +240,15 @@ export default {
 			const order_id = await generateOrderId()
 
 
+			if(!userDetails?.mobile_number) return R(res, false, "Please update your mobile number in your dashboard to proceed further");
+
+
 			const response = await axios.post(`${cashfreeCredentials?.cashfree_api_url}/pg/orders`, {
 				customer_details: {
 					customer_id: `${proj?.creator_id}`,
 					customer_email: `${userDetails?.email}`,
 					customer_phone: `${userDetails?.mobile_number}`,
-					customer_name: `${userDetails?.name} ${userDetails?.surname}`,
+					customer_name: delivery_address?.name ? `${delivery_address?.name}`: `${userDetails?.name} ${userDetails?.surname}`,
 				},
 
 				order_meta: {

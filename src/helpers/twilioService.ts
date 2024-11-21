@@ -5,7 +5,6 @@ const accountSid = String(process.env.TWILIO_ACCOUNT_SID);
 const authToken = String(process.env.TWILIO_AUTH_TOKEN);
 const serviceSid = String(process.env.TWILIO_SERVICE_SID);
 
-
 const client = Twilio(accountSid, authToken);
 
 export const sendOtp = async (phoneNumber: string): Promise<void> => {
