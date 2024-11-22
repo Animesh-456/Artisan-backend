@@ -1831,8 +1831,9 @@ export default {
 
 			const api_data_rep: object = {
 				"!project_title": project.project_name,
-				"!programmer_name": user?.user_name
-
+				"!programmer_name": user?.user_name,
+				
+				"!project_url":`${mail.mailbaseurl}${project.project_name.split(" ").join("-")}-${project?.id}`,
 			}
 
 			const mailData = await models.email_templates.findOne({
