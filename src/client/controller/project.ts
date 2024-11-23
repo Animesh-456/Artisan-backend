@@ -2143,7 +2143,9 @@ export default {
 				"!withdraw_url": `${mail.mailbaseurl}auth/sign-in`,
 				"!amount": transaction_details.amount_gbp,
 				"!supplier_name": supplier?.user_name,
-				"!delvry_date": project.bids[0].bid_days
+				"!delvry_date": project.bids[0].bid_days,
+				"!project_url": `${mail.mailbaseurl}project/${project.project_name}/${project.id}`
+
 			}
 
 			const mailData_cus = await models.email_templates.findOne({
